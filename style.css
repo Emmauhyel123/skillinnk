@@ -1,49 +1,96 @@
-/* Custom Styles for FUW Student Skilled Link */
+
+/* =========================================================
+   Student Skilled Link — refined responsive design layer
+   Keeps the existing FUW/Wukari emerald + amber identity.
+   ========================================================= */
+:root {
+  color-scheme: light;
+  --ssl-green: #047857;
+  --ssl-green-dark: #064e3b;
+  --ssl-ink: #0f172a;
+  --ssl-muted: #64748b;
+  --ssl-border: #e2e8f0;
+  --ssl-amber: #fbbf24;
+}
+html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background: #f7f9fc;
 }
-
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(251, 191, 36, .75);
+  outline-offset: 2px;
+}
+::selection { background: rgba(16, 185, 129, .2); }
 .hero-gradient {
-  background: radial-gradient(circle at top right, #065f46 0%, #022c22 55%, #0f172a 100%);
+  background:
+    radial-gradient(ellipse at 82% 10%, rgba(16, 185, 129, .34), transparent 36%),
+    radial-gradient(ellipse at 10% 100%, rgba(6, 95, 70, .6), transparent 45%),
+    linear-gradient(125deg, #022c22 0%, #064e3b 48%, #0f172a 100%);
 }
-
-/* Active navigation button styling */
-.active-nav {
-  background-color: #047857 !important;
-  color: #ffffff !important;
-  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+header { box-shadow: 0 4px 18px rgba(15, 23, 42, .045); }
+header .nav-btn, header .mnav-btn { white-space: nowrap; }
+.active-nav { background-color: #047857 !important; color: #fff !important; }
+.student-card, #jobs-grid > div, #contracts-list > div {
+  border-color: #e5eaf0;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, .035);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
-
-/* Hide scrollbars on horizontal pill bars */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* Smooth modal entry animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
-}
-
-/* Card hover lift */
-.student-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.student-card:hover {
+.student-card:hover, #jobs-grid > div:hover, #contracts-list > div:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.12);
+  border-color: #a7f3d0;
+  box-shadow: 0 16px 32px -16px rgba(6, 78, 59, .25);
+}
+#students-grid { align-items: stretch; }
+#students-grid > .student-card { min-width: 0; }
+#category-pills button { white-space: nowrap; }
+input, select, textarea {
+  max-width: 100%;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, .12);
+}
+input[type="checkbox"] { accent-color: #047857; }
+button { transition: filter .15s ease, transform .15s ease, box-shadow .15s ease; }
+button:active { transform: translateY(1px); }
+button:disabled { cursor: not-allowed; opacity: .6; }
+#hire-modal, #post-job-modal { overscroll-behavior: contain; }
+#hire-modal > div, #post-job-modal > div {
+  max-height: min(90vh, 900px);
+  overflow-y: auto;
+}
+#toast-container { max-width: min(92vw, 420px); }
+#toast-container > div { box-shadow: 0 12px 35px rgba(15, 23, 42, .22); }
+footer { margin-top: 3rem; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-fade-in { animation: fadeIn .22s ease-out both; }
+@media (max-width: 767px) {
+  .hero-gradient { padding-top: 2.25rem; padding-bottom: 2.5rem; }
+  #students-grid { gap: 1rem; }
+  .student-card { padding: 1rem; }
+  #tab-directory > div:first-child { padding: 1rem; }
+  #toast-container { right: .75rem; bottom: .75rem; left: .75rem; }
+  #toast-container > div { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }
