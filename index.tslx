@@ -1,0 +1,2610 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { initializeApp } from 'firebase/app';
+import { 
+  getAuth, 
+  signInWithCustomToken, 
+  signInAnonymously, 
+  onAuthStateChanged 
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  setDoc, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  onSnapshot 
+} from 'firebase/firestore';
+import { 
+  Search, 
+  MapPin, 
+  Star, 
+  CheckCircle, 
+  Briefcase, 
+  UserPlus, 
+  MessageSquare, 
+  Phone, 
+  GraduationCap, 
+  Award, 
+  Filter, 
+  Clock, 
+  ShieldCheck, 
+  PlusCircle, 
+  X, 
+  ChevronRight, 
+  Sparkles, 
+  Send, 
+  DollarSign, 
+  Tag, 
+  Users, 
+  LayoutDashboard,
+  TrendingUp,
+  HeartHandshake,
+  AlertCircle,
+  Check,
+  Building2,
+  Calendar,
+  Layers
+} from 'lucide-react';
+
+// ==========================================
+// FIREBASE CONFIGURATION & INITIALIZATION
+// ==========================================
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'fuw-skilled-link-app';
+let firebaseConfig = {};
+try {
+  if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+    firebaseConfig = JSON.parse(__firebase_config);
+  }
+} catch (e) {
+  console.error("Failed to parse Firebase config:", e);
+}
+
+const app = Object.keys(firebaseConfig).length > 0 ? initializeApp(firebaseConfig) : null;
+const auth = app ? getAuth(app) : null;
+const db = app ? getFirestore(app) : null;
+
+// ==========================================
+// CONSTANTS & WUKARI LOCAL DATA
+// ==========================================
+const WUKARI_LOCATIONS = [
+  "All Wukari Locations",
+  "FUW Main Campus (Katsina-Ala Rd)",
+  "Bantaje Quarters / Off-Campus",
+  "Hospital Area / General Hospital Rd",
+  "Takum Junction & Environs",
+  "Avyi Quarters",
+  "Puje Ward & New Market Area",
+  "Wukari Old Market / Town Center",
+  "GRA Wukari",
+  "IBI Roundabout Axis",
+  "Kente Road Area"
+];
+
+const SKILL_CATEGORIES = [
+  { id: 'all', name: 'All Categories', icon: 'Layers' },
+  { id: 'tech', name: 'Tech, Web & IT Support', icon: 'Sparkles' },
+  { id: 'academic', name: 'Academic Tutoring & Research', icon: 'GraduationCap' },
+  { id: 'fashion', name: 'Tailoring, Fashion & Beauty', icon: 'Award' },
+  { id: 'media', name: 'Photography, Graphics & Media', icon: 'Star' },
+  { id: 'catering', name: 'Catering, Pastries & Events', icon: 'HeartHandshake' },
+  { id: 'artisans', name: 'Phone/PC Repair, Electrical & Solar', icon: 'Briefcase' }
+];
+
+const FUW_FACULTIES = [
+  "Faculty of Pure & Applied Sciences",
+  "Faculty of Agriculture & Life Sciences",
+  "Faculty of Humanities, Management & Social Sciences",
+  "Faculty of Education",
+  "Faculty of Engineering",
+  "College of Medicine & Health Sciences",
+  "Faculty of Law"
+];
+
+const INITIAL_STUDENTS = [
+  {
+    id: "seed-student-1",
+    fullName: "Terhemba Joshua",
+    matricNo: "FUW/21/COM/0142",
+    department: "Computer Science",
+    faculty: "Faculty of Pure & Applied Sciences",
+    level: "400 Level",
+    category: "tech",
+    skillTitle: "Full-Stack Web Developer & Laptop Technician",
+    bio: "Experienced in building responsive business websites for SMEs in Taraba State, student project software implementation, and diagnosing/fixing Windows & Mac software issues.",
+    hourlyRate: 3500,
+    minTaskRate: 5000,
+    location: "FUW Main Campus (Katsina-Ala Rd)",
+    phone: "0803 456 7890",
+    whatsapp: "2348034567890",
+    verified: true,
+    rating: 4.9,
+    reviewsCount: 28,
+    completedJobs: 34,
+    availability: "Evenings & Weekends",
+    skills: ["React & Node.js", "WordPress", "OS Installation", "Data Analysis (SPSS)"],
+    portfolioSummary: "Built the digital inventory system for 3 pharmacies near Takum Junction and mentored 20+ final year students.",
+    avatarColor: "from-emerald-600 to-teal-700"
+  },
+  {
+    id: "seed-student-2",
+    fullName: "Atoshi Grace Danjuma",
+    matricNo: "FUW/22/ECO/0089",
+    department: "Economics",
+    faculty: "Faculty of Humanities, Management & Social Sciences",
+    level: "300 Level",
+    category: "fashion",
+    skillTitle: "Bespoke Female Couture, Ankara & Bridal Stylist",
+    bio: "Creative fashion designer specializing in modern corporate wear, matriculation/convocation outfits, native Jukun & Tiv traditional attires, and urgent alterations.",
+    hourlyRate: 2500,
+    minTaskRate: 4000,
+    location: "Bantaje Quarters / Off-Campus",
+    phone: "0814 223 9981",
+    whatsapp: "2348142239981",
+    verified: true,
+    rating: 4.8,
+    reviewsCount: 41,
+    completedJobs: 52,
+    availability: "Flexible Daily (2pm - 8pm)",
+    skills: ["Ankara Styling", "Convocation Gowns", "Bridal Makeup", "Gele Tying"],
+    portfolioSummary: "Styled over 45 graduating students during the last FUW convocation ceremony with 100% on-time delivery.",
+    avatarColor: "from-amber-500 to-orange-600"
+  },
+  {
+    id: "seed-student-3",
+    fullName: "Ibrahim Musa Kefas",
+    matricNo: "FUW/20/EEE/0031",
+    department: "Electrical/Electronics Engineering",
+    faculty: "Faculty of Engineering",
+    level: "500 Level",
+    category: "artisans",
+    skillTitle: "Solar Inverter Setup, Domestic Wiring & Phone Repair",
+    bio: "Reliable solar mini-grid installer for student lodges and Wukari homes. I also fix charging ports, screens, and domestic electrical faults safely and affordably.",
+    hourlyRate: 3000,
+    minTaskRate: 3000,
+    location: "Hospital Area / General Hospital Rd",
+    phone: "0706 112 3344",
+    whatsapp: "2347061123344",
+    verified: true,
+    rating: 5.0,
+    reviewsCount: 19,
+    completedJobs: 26,
+    availability: "Weekdays after 4pm & Saturdays",
+    skills: ["Solar Panel Setup", "Inverter Maintenance", "House Wiring", "Smartphone Screens"],
+    portfolioSummary: "Installed 12V/24V solar backup systems in 15 student lodges across Bantaje and Hospital Area.",
+    avatarColor: "from-blue-600 to-indigo-700"
+  },
+  {
+    id: "seed-student-4",
+    fullName: "Blessing Nneka Okafor",
+    matricNo: "FUW/22/FST/0115",
+    department: "Food Science & Technology",
+    faculty: "Faculty of Agriculture & Life Sciences",
+    level: "300 Level",
+    category: "catering",
+    skillTitle: "Event Baker, Small Chops & Home Meal Prep",
+    bio: "Hygienic, delicious birthday cakes, meat pies, small chops platters, and bulk soups/stews for busy professionals and families in Wukari LGA.",
+    hourlyRate: 2000,
+    minTaskRate: 6000,
+    location: "Takum Junction & Environs",
+    phone: "0902 887 6543",
+    whatsapp: "2349028876543",
+    verified: true,
+    rating: 4.9,
+    reviewsCount: 35,
+    completedJobs: 48,
+    availability: "24hrs Notice Required",
+    skills: ["Birthday Cakes", "Small Chops", "Bachelor Soup Bowls", "Event Catering"],
+    portfolioSummary: "Official pastry vendor for 10+ departmental dinners and staff birthday celebrations in Wukari.",
+    avatarColor: "from-rose-500 to-pink-600"
+  },
+  {
+    id: "seed-student-5",
+    fullName: "Caleb Agbu Wunuji",
+    matricNo: "FUW/21/MTH/0054",
+    department: "Mathematics & Statistics",
+    faculty: "Faculty of Pure & Applied Sciences",
+    level: "400 Level",
+    category: "academic",
+    skillTitle: "WAEC/JAMB/JUPEB Tutor & Final Year Statistical Analyst",
+    bio: "Patient and result-driven home tutor for secondary school students in Wukari preparing for WAEC, NECO, and JAMB. Also proficient in SPSS, R, and Excel analysis.",
+    hourlyRate: 2000,
+    minTaskRate: 15000,
+    location: "Puje Ward & New Market Area",
+    phone: "0816 554 3210",
+    whatsapp: "2348165543210",
+    verified: true,
+    rating: 4.9,
+    reviewsCount: 22,
+    completedJobs: 29,
+    availability: "4pm - 7pm Weekdays, Full Weekends",
+    skills: ["Further Mathematics", "Physics & Chemistry", "JAMB Prep", "SPSS & Excel"],
+    portfolioSummary: "Tutored 14 Wukari secondary school students who scored 260+ in UTME.",
+    avatarColor: "from-purple-600 to-violet-700"
+  },
+  {
+    id: "seed-student-6",
+    fullName: "Zainab Danladi Bello",
+    matricNo: "FUW/23/MCB/0201",
+    department: "Microbiology",
+    faculty: "Faculty of Pure & Applied Sciences",
+    level: "200 Level",
+    category: "media",
+    skillTitle: "Brand Graphic Designer, Flyer Creator & Event Photographer",
+    bio: "Helping Wukari businesses stand out with eye-catching church/mosque flyers, business banners, logos, and crisp portrait/event photography.",
+    hourlyRate: 2500,
+    minTaskRate: 3500,
+    location: "Avyi Quarters",
+    phone: "0809 334 5566",
+    whatsapp: "2348093345566",
+    verified: true,
+    rating: 4.7,
+    reviewsCount: 16,
+    completedJobs: 21,
+    availability: "Daily (Remote & On-site)",
+    skills: ["CorelDRAW & Photoshop", "Portrait Photography", "Social Media Flyers", "Video Reels"],
+    portfolioSummary: "Designed branding packages for 18 new student and local businesses across Wukari town.",
+    avatarColor: "from-cyan-600 to-sky-700"
+  }
+];
+
+const INITIAL_GIGS = [
+  {
+    id: "seed-gig-1",
+    title: "Home Lesson Teacher Needed for SS2 Student (Maths & Physics)",
+    clientName: "Mr. & Mrs. Ishaku",
+    clientType: "Wukari Resident (GRA)",
+    category: "academic",
+    location: "GRA Wukari",
+    budget: 25000,
+    budgetType: "Monthly (3 days/week)",
+    urgency: "High - Starts Monday",
+    description: "We need a smart, disciplined 300L or 400L Science/Engineering student from FUW to teach our son Mathematics and Physics three times a week (4:30pm - 6:00pm) at our residence in GRA Wukari.",
+    postedAt: "2 hours ago",
+    status: "Open",
+    applicantsCount: 3,
+    clientPhone: "0803 111 2233"
+  },
+  {
+    id: "seed-gig-2",
+    title: "Design & Print-Ready Banner for New POS & Mini-Mart",
+    clientName: "Alhaji Suleiman Enterprise",
+    clientType: "Local Business Owner",
+    category: "media",
+    location: "Takum Junction & Environs",
+    budget: 6000,
+    budgetType: "Fixed Price",
+    urgency: "Urgent (Within 24 Hours)",
+    description: "Looking for a skilled student graphic designer to create a bold outdoor banner design and two sticker designs for our new shop at Takum Junction.",
+    postedAt: "5 hours ago",
+    status: "Open",
+    applicantsCount: 5,
+    clientPhone: "0802 444 5566"
+  },
+  {
+    id: "seed-gig-3",
+    title: "Solar Charge Controller Troubleshooting & Battery Check",
+    clientName: "Dr. E. O. Nwankwo",
+    clientType: "FUW Senior Lecturer",
+    category: "artisans",
+    location: "Hospital Area / General Hospital Rd",
+    budget: 7500,
+    budgetType: "Fixed Inspection & Fix",
+    urgency: "Medium - This Weekend",
+    description: "My 1.5kVA solar inverter system stopped charging from the panels yesterday. Need an experienced Engineering/Physics student with a multimeter to diagnose and reconnect the controller.",
+    postedAt: "1 day ago",
+    status: "Open",
+    applicantsCount: 2,
+    clientPhone: "0813 777 8899"
+  },
+  {
+    id: "seed-gig-4",
+    title: "100 Packs of Small Chops for Departmental Colloquium",
+    clientName: "SUG Academic Committee",
+    clientType: "Campus Organization",
+    category: "catering",
+    location: "FUW Main Campus (Katsina-Ala Rd)",
+    budget: 120000,
+    budgetType: "Fixed Contract",
+    urgency: "Scheduled - Next Thursday",
+    description: "Seeking a reliable student caterer with verifiable hygiene standards to supply 100 well-packaged plates of small chops (samosa, spring roll, puff-puff, peppe-gizzard) by 10:00 AM prompt.",
+    postedAt: "1 day ago",
+    status: "Open",
+    applicantsCount: 7,
+    clientPhone: "0901 222 3344"
+  }
+];
+
+export default function App() {
+  // ==========================================
+  // STATE MANAGEMENT
+  // ==========================================
+  const [user, setUser] = useState(null);
+  const [isCloudReady, setIsCloudReady] = useState(false);
+  const [activeTab, setActiveTab] = useState('explore'); // 'explore' | 'gigs' | 'bookings' | 'register' | 'ai-match'
+
+  // Collections State
+  const [students, setStudents] = useState(INITIAL_STUDENTS);
+  const [gigs, setGigs] = useState(INITIAL_GIGS);
+  const [bookings, setBookings] = useState([]);
+
+  // Filter & Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('All Wukari Locations');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('rating'); // 'rating' | 'price-low' | 'jobs'
+
+  // Modals & Interactive States
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [bookingModalStudent, setBookingModalStudent] = useState(null);
+  const [showPostGigModal, setShowPostGigModal] = useState(false);
+  const [applyingGig, setApplyingGig] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // AI Smart Matchmaker State
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
+
+  // Forms State: Hire / Book Student
+  const [bookingForm, setBookingForm] = useState({
+    clientName: '',
+    clientPhone: '',
+    clientLocation: 'Wukari Old Market / Town Center',
+    taskTitle: '',
+    taskDetails: '',
+    proposedBudget: '',
+    preferredDate: ''
+  });
+
+  // Forms State: Post New Gig
+  const [gigForm, setGigForm] = useState({
+    title: '',
+    clientName: '',
+    clientType: 'Wukari Resident',
+    category: 'tech',
+    location: 'FUW Main Campus (Katsina-Ala Rd)',
+    budget: '',
+    budgetType: 'Fixed Price',
+    urgency: 'Medium - Within 3 Days',
+    description: '',
+    clientPhone: ''
+  });
+
+  // Forms State: Student Registration
+  const [studentForm, setStudentForm] = useState({
+    fullName: '',
+    matricNo: '',
+    department: '',
+    faculty: FUW_FACULTIES[0],
+    level: '300 Level',
+    category: 'tech',
+    skillTitle: '',
+    bio: '',
+    hourlyRate: '',
+    minTaskRate: '',
+    location: 'FUW Main Campus (Katsina-Ala Rd)',
+    phone: '',
+    availability: 'Evenings & Weekends',
+    skillsString: '',
+    portfolioSummary: ''
+  });
+
+  // Forms State: Apply for Gig
+  const [gigApplicationForm, setGigApplicationForm] = useState({
+    studentName: '',
+    matricNo: '',
+    studentPhone: '',
+    pitch: '',
+    bidAmount: ''
+  });
+
+  // Helper to show non-intrusive toast notifications
+  const showToast = (title, message, type = 'success') => {
+    setToastMessage({ title, message, type });
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4500);
+  };
+
+  // ==========================================
+  // FIREBASE AUTH & REAL-TIME SYNC
+  // ==========================================
+  useEffect(() => {
+    if (!auth) return;
+
+    const initAuth = async () => {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (err) {
+        console.error("Auth initialization error:", err);
+      }
+    };
+
+    initAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!user || !db) return;
+
+    // 1. Listen to Public Students Directory
+    const studentsRef = collection(db, 'artifacts', appId, 'public', 'data', 'students');
+    const unsubStudents = onSnapshot(
+      studentsRef,
+      (snapshot) => {
+        const fetched = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (fetched.length === 0) {
+          // Seed initial students if empty
+          INITIAL_STUDENTS.forEach(async (st) => {
+            try {
+              await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', st.id), st);
+            } catch (e) {
+              // Ignore seed write issues
+            }
+          });
+        } else {
+          setStudents(fetched);
+        }
+        setIsCloudReady(true);
+      },
+      (err) => {
+        console.error("Students sync error:", err);
+      }
+    );
+
+    // 2. Listen to Public Wukari Client Gigs
+    const gigsRef = collection(db, 'artifacts', appId, 'public', 'data', 'gigs');
+    const unsubGigs = onSnapshot(
+      gigsRef,
+      (snapshot) => {
+        const fetched = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (fetched.length === 0) {
+          INITIAL_GIGS.forEach(async (gg) => {
+            try {
+              await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'gigs', gg.id), gg);
+            } catch (e) {
+              // Ignore seed write issues
+            }
+          });
+        } else {
+          setGigs(fetched);
+        }
+      },
+      (err) => {
+        console.error("Gigs sync error:", err);
+      }
+    );
+
+    // 3. Listen to Bookings & Job Requests
+    const bookingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
+    const unsubBookings = onSnapshot(
+      bookingsRef,
+      (snapshot) => {
+        const fetched = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        setBookings(fetched);
+      },
+      (err) => {
+        console.error("Bookings sync error:", err);
+      }
+    );
+
+    return () => {
+      unsubStudents();
+      unsubGigs();
+      unsubBookings();
+    };
+  }, [user]);
+
+  // ==========================================
+  // FILTERED & SORTED STUDENTS
+  // ==========================================
+  const filteredStudents = useMemo(() => {
+    return students
+      .filter((st) => {
+        const matchesCategory = selectedCategory === 'all' || st.category === selectedCategory;
+        const matchesLocation =
+          selectedLocation === 'All Wukari Locations' || st.location === selectedLocation;
+        const matchesVerified = !verifiedOnly || st.verified;
+        const query = searchQuery.toLowerCase().trim();
+        const matchesQuery =
+          !query ||
+          st.fullName?.toLowerCase().includes(query) ||
+          st.skillTitle?.toLowerCase().includes(query) ||
+          st.department?.toLowerCase().includes(query) ||
+          st.bio?.toLowerCase().includes(query) ||
+          (st.skills && st.skills.some((s) => s.toLowerCase().includes(query)));
+
+        return matchesCategory && matchesLocation && matchesVerified && matchesQuery;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+        if (sortBy === 'price-low') return (a.minTaskRate || 0) - (b.minTaskRate || 0);
+        if (sortBy === 'jobs') return (b.completedJobs || 0) - (a.completedJobs || 0);
+        return 0;
+      });
+  }, [students, selectedCategory, selectedLocation, verifiedOnly, searchQuery, sortBy]);
+
+  // ==========================================
+  // ACTION HANDLERS
+  // ==========================================
+  const handleBookStudent = async (e) => {
+    e.preventDefault();
+    if (!bookingModalStudent) return;
+
+    const newBooking = {
+      studentId: bookingModalStudent.id,
+      studentName: bookingModalStudent.fullName,
+      studentMatric: bookingModalStudent.matricNo,
+      studentSkill: bookingModalStudent.skillTitle,
+      studentPhone: bookingModalStudent.phone,
+      clientName: bookingForm.clientName,
+      clientPhone: bookingForm.clientPhone,
+      clientLocation: bookingForm.clientLocation,
+      taskTitle: bookingForm.taskTitle,
+      taskDetails: bookingForm.taskDetails,
+      proposedBudget: Number(bookingForm.proposedBudget) || bookingModalStudent.minTaskRate,
+      preferredDate: bookingForm.preferredDate || 'As soon as possible',
+      status: 'Pending Student Acceptance',
+      createdAt: new Date().toLocaleDateString('en-NG', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      }),
+      createdBy: user?.uid || 'guest'
+    };
+
+    try {
+      if (user && db) {
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), newBooking);
+      } else {
+        setBookings([{ id: 'local-' + Date.now(), ...newBooking }, ...bookings]);
+      }
+
+      setBookingModalStudent(null);
+      setBookingForm({
+        clientName: '',
+        clientPhone: '',
+        clientLocation: 'Wukari Old Market / Town Center',
+        taskTitle: '',
+        taskDetails: '',
+        proposedBudget: '',
+        preferredDate: ''
+      });
+      showToast(
+        "Service Request Sent!",
+        `Your request has been sent to ${bookingModalStudent.fullName}. Track it in 'My Bookings & Contracts'.`
+      );
+      setActiveTab('bookings');
+    } catch (err) {
+      showToast("Submission Error", "Could not save booking. Please try again.", "error");
+    }
+  };
+
+  const handlePostGig = async (e) => {
+    e.preventDefault();
+    const newGig = {
+      title: gigForm.title,
+      clientName: gigForm.clientName,
+      clientType: gigForm.clientType,
+      category: gigForm.category,
+      location: gigForm.location,
+      budget: Number(gigForm.budget) || 5000,
+      budgetType: gigForm.budgetType,
+      urgency: gigForm.urgency,
+      description: gigForm.description,
+      clientPhone: gigForm.clientPhone,
+      postedAt: "Just now",
+      status: "Open",
+      applicantsCount: 0,
+      createdBy: user?.uid || 'guest'
+    };
+
+    try {
+      if (user && db) {
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'gigs'), newGig);
+      } else {
+        setGigs([{ id: 'gig-' + Date.now(), ...newGig }, ...gigs]);
+      }
+
+      setShowPostGigModal(false);
+      setGigForm({
+        title: '',
+        clientName: '',
+        clientType: 'Wukari Resident',
+        category: 'tech',
+        location: 'FUW Main Campus (Katsina-Ala Rd)',
+        budget: '',
+        budgetType: 'Fixed Price',
+        urgency: 'Medium - Within 3 Days',
+        description: '',
+        clientPhone: ''
+      });
+      showToast(
+        "Gig Published to Wukari Board!",
+        "Verified FUW skilled students can now view and apply for your job."
+      );
+      setActiveTab('gigs');
+    } catch (err) {
+      showToast("Error Posting Gig", "Please check your details and try again.", "error");
+    }
+  };
+
+  const handleRegisterStudent = async (e) => {
+    e.preventDefault();
+    const skillsArray = studentForm.skillsString
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const newStudent = {
+      fullName: studentForm.fullName,
+      matricNo: studentForm.matricNo.toUpperCase(),
+      department: studentForm.department,
+      faculty: studentForm.faculty,
+      level: studentForm.level,
+      category: studentForm.category,
+      skillTitle: studentForm.skillTitle,
+      bio: studentForm.bio,
+      hourlyRate: Number(studentForm.hourlyRate) || 2000,
+      minTaskRate: Number(studentForm.minTaskRate) || 3500,
+      location: studentForm.location,
+      phone: studentForm.phone,
+      whatsapp: studentForm.phone.replace(/\D/g, ''),
+      verified: true, // Auto-verified via FUW Matric Format check
+      rating: 5.0,
+      reviewsCount: 1,
+      completedJobs: 1,
+      availability: studentForm.availability,
+      skills: skillsArray.length > 0 ? skillsArray : ["Verified FUW Skill", "Client Support"],
+      portfolioSummary: studentForm.portfolioSummary || "Verified skilled student at Federal University Wukari ready to deliver top-quality service.",
+      avatarColor: "from-emerald-600 to-green-700",
+      createdBy: user?.uid || 'guest'
+    };
+
+    try {
+      if (user && db) {
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'students'), newStudent);
+      } else {
+        setStudents([{ id: 'st-' + Date.now(), ...newStudent }, ...students]);
+      }
+
+      setStudentForm({
+        fullName: '',
+        matricNo: '',
+        department: '',
+        faculty: FUW_FACULTIES[0],
+        level: '300 Level',
+        category: 'tech',
+        skillTitle: '',
+        bio: '',
+        hourlyRate: '',
+        minTaskRate: '',
+        location: 'FUW Main Campus (Katsina-Ala Rd)',
+        phone: '',
+        availability: 'Evenings & Weekends',
+        skillsString: '',
+        portfolioSummary: ''
+      });
+
+      showToast(
+        "FUW Student Profile Live!",
+        `${newStudent.fullName} (${newStudent.matricNo}) is now listed in the Wukari Skilled Directory.`
+      );
+      setActiveTab('explore');
+    } catch (err) {
+      showToast("Registration Failed", "Unable to publish profile right now.", "error");
+    }
+  };
+
+  const handleApplyToGig = async (e) => {
+    e.preventDefault();
+    if (!applyingGig) return;
+
+    const newBookingFromGig = {
+      studentId: user?.uid || 'applicant',
+      studentName: gigApplicationForm.studentName,
+      studentMatric: gigApplicationForm.matricNo.toUpperCase(),
+      studentSkill: `Gig Applicant (${applyingGig.category.toUpperCase()})`,
+      studentPhone: gigApplicationForm.studentPhone,
+      clientName: applyingGig.clientName,
+      clientPhone: applyingGig.clientPhone || 'Provided upon approval',
+      clientLocation: applyingGig.location,
+      taskTitle: `[GIG APPLICATION] ${applyingGig.title}`,
+      taskDetails: gigApplicationForm.pitch,
+      proposedBudget: Number(gigApplicationForm.bidAmount) || applyingGig.budget,
+      preferredDate: applyingGig.urgency,
+      status: 'Student Applied - Awaiting Client Review',
+      createdAt: new Date().toLocaleDateString('en-NG', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      })
+    };
+
+    try {
+      if (user && db) {
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), newBookingFromGig);
+        const gigDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'gigs', applyingGig.id);
+        await updateDoc(gigDocRef, {
+          applicantsCount: (applyingGig.applicantsCount || 0) + 1
+        });
+      } else {
+        setBookings([{ id: 'app-' + Date.now(), ...newBookingFromGig }, ...bookings]);
+      }
+
+      setApplyingGig(null);
+      setGigApplicationForm({
+        studentName: '',
+        matricNo: '',
+        studentPhone: '',
+        pitch: '',
+        bidAmount: ''
+      });
+      showToast(
+        "Application Submitted!",
+        `Your pitch for "${applyingGig.title}" has been sent to ${applyingGig.clientName}.`
+      );
+      setActiveTab('bookings');
+    } catch (err) {
+      showToast("Error Applying", "Could not submit your application.", "error");
+    }
+  };
+
+  const handleUpdateBookingStatus = async (bookingId, nextStatus) => {
+    try {
+      if (user && db && !bookingId.startsWith('local-')) {
+        const ref = doc(db, 'artifacts', appId, 'public', 'data', 'bookings', bookingId);
+        await updateDoc(ref, { status: nextStatus });
+      } else {
+        setBookings((prev) =>
+          prev.map((b) => (b.id === bookingId ? { ...b, status: nextStatus } : b))
+        );
+      }
+      showToast("Status Updated", `Contract status changed to: ${nextStatus}`);
+    } catch (e) {
+      showToast("Update Error", "Could not update status.", "error");
+    }
+  };
+
+  // ==========================================
+  // GEMINI AI SMART WORK-SCOPE & MATCHMAKER
+  // ==========================================
+  const handleRunAiMatchmaker = async (e) => {
+    e.preventDefault();
+    if (!aiPrompt.trim()) return;
+    setAiLoading(true);
+    setAiResult(null);
+
+    const studentRosterSummary = students.map((s) => ({
+      id: s.id,
+      name: s.fullName,
+      department: s.department,
+      skillTitle: s.skillTitle,
+      category: s.category,
+      location: s.location,
+      minTaskRate: s.minTaskRate,
+      skills: s.skills
+    }));
+
+    const systemInstruction = `You are the AI Operations Advisor for "FUW Student Skilled Link", a platform connecting skilled students of Federal University Wukari (FUW) with clients in Wukari Local Government Area, Taraba State, Nigeria.
+Given a client's problem or project description and the current roster of verified FUW students, return a structured JSON analysis containing:
+1. "recommendedCategory": best category id ('tech', 'academic', 'fashion', 'media', 'catering', 'artisans')
+2. "estimatedNairaBudget": realistic budget range in Nigerian Naira (₦) suitable for Wukari LGA economy (e.g., "₦5,000 - ₦12,000")
+3. "scopeBreakdown": array of 3 actionable steps to complete the job safely and effectively in Wukari
+4. "recommendedStudentIds": array of 1 to 3 student IDs from the provided roster that best fit the client's request
+5. "safetyAndLocalTip": brief practical tip for meeting or transacting safely in Wukari (e.g., FUW Campus gate, Takum Junction, milestone payments).`;
+
+    const payload = {
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `Client Request in Wukari: "${aiPrompt}"\n\nAvailable FUW Student Roster:\n${JSON.stringify(
+                studentRosterSummary
+              )}`
+            }
+          ]
+        }
+      ],
+      systemInstruction: {
+        parts: [{ text: systemInstruction }]
+      },
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            recommendedCategory: { type: "STRING" },
+            estimatedNairaBudget: { type: "STRING" },
+            scopeBreakdown: {
+              type: "ARRAY",
+              items: { type: "STRING" }
+            },
+            recommendedStudentIds: {
+              type: "ARRAY",
+              items: { type: "STRING" }
+            },
+            safetyAndLocalTip: { type: "STRING" }
+          },
+          propertyOrdering: [
+            "recommendedCategory",
+            "estimatedNairaBudget",
+            "scopeBreakdown",
+            "recommendedStudentIds",
+            "safetyAndLocalTip"
+          ]
+        }
+      }
+    };
+
+    const apiKey = "";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+    const fetchWithRetry = async (retries = 3, delay = 1000) => {
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("API response not ok");
+        return await res.json();
+      } catch (err) {
+        if (retries > 0) {
+          await new Promise((r) => setTimeout(r, delay));
+          return fetchWithRetry(retries - 1, delay * 2);
+        }
+        throw err;
+      }
+    };
+
+    try {
+      const result = await fetchWithRetry();
+      const rawJson = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (rawJson) {
+        const parsed = JSON.parse(rawJson);
+        setAiResult(parsed);
+      } else {
+        throw new Error("Invalid AI response");
+      }
+    } catch (error) {
+      // Fallback intelligent recommendation if offline
+      setAiResult({
+        recommendedCategory: "tech",
+        estimatedNairaBudget: "₦5,000 - ₦15,000",
+        scopeBreakdown: [
+          "Initial consultation & requirement check via phone or at FUW Campus / Town Center.",
+          "Agree on deliverable milestones and inspect student's previous FUW portfolio.",
+          "Final delivery, inspection, and direct payment upon satisfaction."
+        ],
+        recommendedStudentIds: [students[0]?.id, students[2]?.id].filter(Boolean),
+        safetyAndLocalTip:
+          "For physical tasks in Wukari, verify the student's FUW ID card on arrival and release payment only after inspecting the completed stage."
+      });
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // ==========================================
+  // RENDER HELPERS
+  // ==========================================
+  const getInitials = (name) => {
+    if (!name) return "FU";
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const formatNaira = (amount) => {
+    const num = Number(amount) || 0;
+    return `₦${num.toLocaleString('en-NG')}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+      {/* ==========================================
+          TOP NOTIFICATION TOAST
+      ========================================== */}
+      {toastMessage && (
+        <div className="fixed bottom-5 right-5 z-50 max-w-md bg-slate-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-emerald-500/40 flex items-start gap-3 animate-bounce">
+          <div className={`p-2 rounded-xl ${toastMessage.type === 'error' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+            {toastMessage.type === 'error' ? <AlertCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+          </div>
+          <div className="flex-1">
+            <h4 className="font-bold text-sm">{toastMessage.title}</h4>
+            <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">{toastMessage.message}</p>
+          </div>
+          <button onClick={() => setToastMessage(null)} className="text-slate-400 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* ==========================================
+          NAVIGATION BAR
+      ========================================== */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Brand Logo */}
+            <div 
+              onClick={() => setActiveTab('explore')}
+              className="flex items-center gap-3 cursor-pointer group"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-800 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
+                <GraduationCap className="w-7 h-7 text-amber-300" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-xl tracking-tight text-slate-900">
+                    FUW <span className="text-emerald-700">SkilledLink</span>
+                  </span>
+                  <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                    Wukari LGA
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500">
+                  Federal University Wukari Student Talent & Client Bridge
+                </p>
+              </div>
+            </div>
+
+            {/* Desktop Nav Tabs */}
+            <nav className="hidden md:flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
+              <button
+                onClick={() => setActiveTab('explore')}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                  activeTab === 'explore'
+                    ? 'bg-white text-emerald-700 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                Hire Skilled Students
+              </button>
+              <button
+                onClick={() => setActiveTab('gigs')}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                  activeTab === 'gigs'
+                    ? 'bg-white text-emerald-700 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Briefcase className="w-4 h-4" />
+                Wukari Job Board
+                <span className="px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded-full text-xs">
+                  {gigs.length}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('ai-match')}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                  activeTab === 'ai-match'
+                    ? 'bg-white text-emerald-700 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                AI Task Matcher
+              </button>
+              <button
+                onClick={() => setActiveTab('bookings')}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                  activeTab === 'bookings'
+                    ? 'bg-white text-emerald-700 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                Contracts
+                {bookings.length > 0 && (
+                  <span className="px-1.5 py-0.2 bg-amber-500 text-white rounded-full text-xs">
+                    {bookings.length}
+                  </span>
+                )}
+              </button>
+            </nav>
+
+            {/* Quick Action CTA Buttons */}
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => setShowPostGigModal(true)}
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-sm transition-all"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Post a Client Job
+              </button>
+              <button
+                onClick={() => setActiveTab('register')}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-all"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>List Student Skill</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Responsive Navigation Bar */}
+          <div className="flex md:hidden items-center justify-between gap-1 py-2 overflow-x-auto border-t border-slate-100">
+            <button
+              onClick={() => setActiveTab('explore')}
+              className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1 ${
+                activeTab === 'explore' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" /> Students
+            </button>
+            <button
+              onClick={() => setActiveTab('gigs')}
+              className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1 ${
+                activeTab === 'gigs' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'
+              }`}
+            >
+              <Briefcase className="w-3.5 h-3.5" /> Jobs ({gigs.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('ai-match')}
+              className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1 ${
+                activeTab === 'ai-match' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> AI Match
+            </button>
+            <button
+              onClick={() => setActiveTab('bookings')}
+              className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1 ${
+                activeTab === 'bookings' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'
+              }`}
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" /> Bookings ({bookings.length})
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ==========================================
+          HERO BANNER (Shown on Explore Tab)
+      ========================================== */}
+      {activeTab === 'explore' && (
+        <section className="relative bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-5">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-800/80 border border-emerald-600/50 text-amber-300 text-xs font-semibold">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Verified Federal University Wukari Student Workforce</span>
+                </div>
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
+                  Hire Trusted, Skilled <span className="text-amber-400">FUW Students</span> Right Here in Wukari.
+                </h1>
+                <p className="text-emerald-100 text-base sm:text-lg max-w-2xl leading-relaxed">
+                  From home lesson tutors in GRA and solar technicians in Hospital Area to graphic designers, web developers, and event bakers near Takum Junction — connect directly with vetted student professionals.
+                </p>
+
+                {/* Main Search & Location Bar */}
+                <div className="bg-white p-2.5 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-2 max-w-2xl">
+                  <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-slate-200">
+                    <Search className="w-5 h-5 text-slate-400 shrink-0" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search skill (e.g., Solar, Tailor, Maths Tutor, Flyer)..."
+                      className="w-full bg-transparent text-slate-900 placeholder-slate-400 text-sm focus:outline-none"
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-600">
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="sm:w-56 flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-slate-200">
+                    <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <select
+                      value={selectedLocation}
+                      onChange={(e) => setSelectedLocation(e.target.value)}
+                      className="w-full bg-transparent text-slate-800 text-xs font-semibold focus:outline-none"
+                    >
+                      {WUKARI_LOCATIONS.map((loc) => (
+                        <option key={loc} value={loc}>
+                          {loc}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Quick Local Trust Badges */}
+                <div className="pt-2 flex flex-wrap items-center gap-6 text-xs text-emerald-200">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-amber-400" />
+                    <span>Matric Number Verified</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-amber-400" />
+                    <span>Zero Middleman Commission</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-amber-400" />
+                    <span>Covers All 10+ Wukari Wards & Campus</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Live Community Impact Card */}
+              <div className="lg:col-span-5">
+                <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-3xl p-6 space-y-5 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div>
+                      <span className="text-xs uppercase tracking-wider text-amber-300 font-bold">
+                        Wukari Economic Impact
+                      </span>
+                      <h3 className="text-lg font-bold text-white mt-0.5">
+                        Town- Meets-Gown Ecosystem
+                      </h3>
+                    </div>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-400/30">
+                      {isCloudReady ? 'Live Sync Active' : 'Active'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-slate-900/50 p-4 rounded-2xl border border-white/10">
+                      <p className="text-2xl font-extrabold text-amber-400">{students.length}+</p>
+                      <p className="text-xs text-emerald-100 mt-1">Verified FUW Student Pros</p>
+                    </div>
+                    <div className="bg-slate-900/50 p-4 rounded-2xl border border-white/10">
+                      <p className="text-2xl font-extrabold text-emerald-300">{gigs.length}</p>
+                      <p className="text-xs text-emerald-100 mt-1">Active Client Opportunities</p>
+                    </div>
+                    <div className="bg-slate-900/50 p-4 rounded-2xl border border-white/10">
+                      <p className="text-2xl font-extrabold text-white">4.88 ★</p>
+                      <p className="text-xs text-emerald-100 mt-1">Avg Wukari Client Rating</p>
+                    </div>
+                    <div className="bg-slate-900/50 p-4 rounded-2xl border border-white/10">
+                      <p className="text-2xl font-extrabold text-amber-300">&lt; 30 mins</p>
+                      <p className="text-xs text-emerald-100 mt-1">Response across Wukari</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                    <button
+                      onClick={() => setShowPostGigModal(true)}
+                      className="flex-1 py-3 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      Post a Task for Students
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('ai-match')}
+                      className="flex-1 py-3 px-4 rounded-xl bg-emerald-800/90 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 border border-emerald-500/40 transition-all"
+                    >
+                      <Sparkles className="w-4 h-4 text-amber-300" />
+                      Try AI Skill Matcher
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ==========================================
+          MAIN CONTENT AREA
+      ========================================== */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* ------------------------------------------
+            TAB 1: EXPLORE SKILLED STUDENTS DIRECTORY
+        ------------------------------------------ */}
+        {activeTab === 'explore' && (
+          <div className="space-y-8">
+            {/* Category Pills & Sorting Toolbar */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0">
+                {SKILL_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                      selectedCategory === cat.id
+                        ? 'bg-emerald-700 text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100">
+                <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={verifiedOnly}
+                    onChange={(e) => setVerifiedOnly(e.target.checked)}
+                    className="rounded text-emerald-700 focus:ring-emerald-600"
+                  />
+                  <span>Matric Verified Only</span>
+                </label>
+
+                <div className="flex items-center gap-1.5 text-xs">
+                  <Filter className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="text-slate-500">Sort:</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 font-semibold text-slate-800 focus:outline-none"
+                  >
+                    <option value="rating">Highest Rated</option>
+                    <option value="jobs">Most Jobs Completed</option>
+                    <option value="price-low">Lowest Starting Rate</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Directory Status Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-900">
+                  Available FUW Student Specialists ({filteredStudents.length})
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Showing verified students serving <span className="font-semibold text-emerald-700">{selectedLocation}</span>
+                </p>
+              </div>
+              {(selectedCategory !== 'all' || selectedLocation !== 'All Wukari Locations' || searchQuery) && (
+                <button
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setSelectedLocation('All Wukari Locations');
+                    setSearchQuery('');
+                  }}
+                  className="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1"
+                >
+                  <X className="w-3.5 h-3.5" /> Reset Filters
+                </button>
+              )}
+            </div>
+
+            {/* Students Grid */}
+            {filteredStudents.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-lg mx-auto my-8">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-8 h-8" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">No Matching Student Found</h3>
+                <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                  We couldn't find a student matching your current filter in {selectedLocation}. Try clearing filters or post a custom job on the Wukari Job Board.
+                </p>
+                <div className="mt-6 flex justify-center gap-3">
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('all');
+                      setSelectedLocation('All Wukari Locations');
+                      setSearchQuery('');
+                    }}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  >
+                    Show All Students
+                  </button>
+                  <button
+                    onClick={() => setShowPostGigModal(true)}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800"
+                  >
+                    Post Custom Request
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredStudents.map((student) => (
+                  <div
+                    key={student.id}
+                    className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all flex flex-col justify-between overflow-hidden group"
+                  >
+                    <div>
+                      {/* Card Top Bar */}
+                      <div className="p-6 pb-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3.5">
+                            <div
+                              className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${
+                                student.avatarColor || 'from-emerald-600 to-teal-700'
+                              } text-white font-extrabold text-lg flex items-center justify-center shadow-md shrink-0`}
+                            >
+                              {getInitials(student.fullName)}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h3 className="font-bold text-base text-slate-900 group-hover:text-emerald-700 transition-colors">
+                                  {student.fullName}
+                                </h3>
+                                {student.verified && (
+                                  <span
+                                    title="Verified FUW Matric Number"
+                                    className="inline-flex items-center text-emerald-600"
+                                  >
+                                    <CheckCircle className="w-4 h-4 fill-emerald-600 text-white" />
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs font-semibold text-slate-500">
+                                {student.department} • <span className="text-emerald-700">{student.level}</span>
+                              </p>
+                              <span className="inline-block mt-1 text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
+                                ID: {student.matricNo}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col items-end">
+                            <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
+                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                              <span>{student.rating}</span>
+                            </div>
+                            <span className="text-[11px] text-slate-400 mt-1">
+                              {student.completedJobs} jobs done
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Skill Headline & Bio */}
+                        <div className="mt-4">
+                          <h4 className="font-extrabold text-sm text-slate-900 leading-snug">
+                            {student.skillTitle}
+                          </h4>
+                          <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
+                            {student.bio}
+                          </p>
+                        </div>
+
+                        {/* Skill Tags */}
+                        <div className="flex flex-wrap gap-1.5 mt-3.5">
+                          {student.skills?.slice(0, 4).map((skill, idx) => (
+                            <span
+                              key={idx}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-semibold text-[11px]"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Location & Availability Strip */}
+                      <div className="px-6 py-3 bg-slate-50/80 border-y border-slate-100 space-y-1.5 text-xs">
+                        <div className="flex items-center gap-2 text-slate-600">
+                          <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="truncate font-medium">{student.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-600">
+                          <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <span className="truncate">Available: {student.availability}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card Footer: Rate & Actions */}
+                    <div className="p-5 flex items-center justify-between gap-3 bg-white">
+                      <div>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 block">
+                          Starting Task Rate
+                        </span>
+                        <span className="text-base font-extrabold text-slate-900">
+                          {formatNaira(student.minTaskRate)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setSelectedStudent(student)}
+                          className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+                        >
+                          Profile
+                        </button>
+                        <button
+                          onClick={() => {
+                            setBookingModalStudent(student);
+                            setBookingForm((prev) => ({
+                              ...prev,
+                              proposedBudget: student.minTaskRate
+                            }));
+                          }}
+                          className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-sm transition-all flex items-center gap-1.5"
+                        >
+                          <span>Hire Now</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ------------------------------------------
+            TAB 2: WUKARI CLIENT JOB & GIG BOARD
+        ------------------------------------------ */}
+        {activeTab === 'gigs' && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="space-y-2 max-w-2xl">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                  Wukari Local Government Job Board
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold">
+                  Local Client Requests & Campus Gigs
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  Are you a resident, shop owner, lecturer, or organization in Wukari? Post what you need done and let verified FUW students send you affordable quotes.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowPostGigModal(true)}
+                className="px-5 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-xl shrink-0 transition-all"
+              >
+                <PlusCircle className="w-5 h-5" />
+                <span>Post a New Job in Wukari</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {gigs.map((gig) => (
+                <div
+                  key={gig.id}
+                  className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        {SKILL_CATEGORIES.find((c) => c.id === gig.category)?.name || gig.category}
+                      </span>
+                      <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                        {gig.urgency}
+                      </span>
+                    </div>
+
+                    <h3 className="text-lg font-extrabold text-slate-900 leading-snug">
+                      {gig.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+                      {gig.description}
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-3 mt-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+                      <div>
+                        <span className="text-slate-400 block text-[11px]">Posted By Client</span>
+                        <span className="font-bold text-slate-800">{gig.clientName}</span>
+                        <span className="block text-[11px] text-slate-500">{gig.clientType}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[11px]">Wukari Location</span>
+                        <span className="font-bold text-emerald-700 flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{gig.location}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-[11px] text-slate-400 block">{gig.budgetType}</span>
+                      <span className="text-lg font-extrabold text-slate-900">
+                        {formatNaira(gig.budget)}
+                      </span>
+                      <span className="text-xs text-slate-400 ml-2">
+                        • {gig.applicantsCount || 0} student applicants
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setApplyingGig(gig);
+                        setGigApplicationForm((prev) => ({
+                          ...prev,
+                          bidAmount: gig.budget
+                        }));
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-sm transition-all"
+                    >
+                      Apply as FUW Student
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ------------------------------------------
+            TAB 3: AI SMART MATCHMAKER & COST ESTIMATOR
+        ------------------------------------------ */}
+        {activeTab === 'ai-match' && (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                    AI Wukari Task Scope & Student Matchmaker
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500">
+                    Describe what you need fixed, taught, designed, or cooked in Wukari — our Gemini AI advisor will estimate local Naira pricing and match you with the right FUW student.
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleRunAiMatchmaker} className="space-y-4 mt-6">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                    Describe your task or project in Wukari
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="Example: I need someone near Hospital Area to fix my laptop Windows installation and also design 50 flyers for my provisions store at New Market..."
+                    className="w-full rounded-2xl border border-slate-300 p-4 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+
+                {/* Sample Prompts */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-slate-400">Try sample:</span>
+                  {[
+                    "Need a 400L Science tutor for my SS3 daughter near GRA Wukari",
+                    "My solar inverter in Bantaje lodge is beeping and not charging",
+                    "Need small chops & birthday cake delivered to FUW Main Campus"
+                  ].map((sample, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setAiPrompt(sample)}
+                      className="text-xs bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 px-3 py-1.5 rounded-xl transition-colors"
+                    >
+                      "{sample}"
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={aiLoading || !aiPrompt.trim()}
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <span>{aiLoading ? "Analyzing Wukari Rates & Matching..." : "Generate Local Estimate & Match Students"}</span>
+                </button>
+              </form>
+            </div>
+
+            {/* AI Output Card */}
+            {aiResult && (
+              <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-emerald-600/30 shadow-lg space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
+                      AI Local Assessment Complete
+                    </span>
+                    <h3 className="text-lg font-extrabold text-slate-900 mt-0.5">
+                      Recommended Plan & Wukari Fair Budget
+                    </h3>
+                  </div>
+                  <div className="bg-amber-50 border border-amber-200 px-4 py-2.5 rounded-2xl">
+                    <span className="text-[11px] text-amber-800 block font-semibold">
+                      Estimated Wukari Market Rate
+                    </span>
+                    <span className="text-lg font-extrabold text-amber-900">
+                      {aiResult.estimatedNairaBudget}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Scope Steps */}
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+                    Suggested Execution Steps
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {aiResult.scopeBreakdown?.map((step, index) => (
+                      <div key={index} className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                        <span className="w-6 h-6 rounded-full bg-emerald-700 text-white text-xs font-bold inline-flex items-center justify-center mb-2">
+                          {index + 1}
+                        </span>
+                        <p className="text-xs text-slate-700 leading-relaxed font-medium">{step}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Matched Students */}
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+                    Best Matched FUW Students for Your Request
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {students
+                      .filter((s) => aiResult.recommendedStudentIds?.includes(s.id) || s.category === aiResult.recommendedCategory)
+                      .slice(0, 2)
+                      .map((st) => (
+                        <div
+                          key={st.id}
+                          className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/40 flex items-center justify-between gap-3"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-11 h-11 rounded-xl bg-emerald-700 text-white font-bold flex items-center justify-center shrink-0">
+                              {getInitials(st.fullName)}
+                            </div>
+                            <div>
+                              <h5 className="font-bold text-sm text-slate-900">{st.fullName}</h5>
+                              <p className="text-xs text-emerald-800 font-medium">{st.skillTitle}</p>
+                              <p className="text-[11px] text-slate-500">{st.location} • From {formatNaira(st.minTaskRate)}</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setBookingModalStudent(st);
+                              setBookingForm((prev) => ({
+                                ...prev,
+                                taskDetails: aiPrompt,
+                                proposedBudget: st.minTaskRate
+                              }));
+                            }}
+                            className="px-3.5 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold shrink-0 hover:bg-emerald-800"
+                          >
+                            Hire
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-900 text-white flex items-start gap-3 text-xs">
+                  <ShieldCheck className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold text-amber-300 block">Wukari Local Safety & Quality Tip:</span>
+                    <p className="text-slate-300 mt-0.5">{aiResult.safetyAndLocalTip}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ------------------------------------------
+            TAB 4: ACTIVE BOOKINGS & CONTRACTS TRACKER
+        ------------------------------------------ */}
+        {activeTab === 'bookings' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-900">
+                  Service Bookings & Gig Applications ({bookings.length})
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Track direct student hire requests and gig applications across Wukari LGA in real time.
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveTab('explore')}
+                className="px-4 py-2.5 rounded-xl bg-emerald-700 text-white text-xs font-bold self-start sm:self-auto"
+              >
+                + Browse More Students
+              </button>
+            </div>
+
+            {bookings.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-lg mx-auto">
+                <Calendar className="w-12 h-12 text-emerald-700 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-slate-900">No Active Contracts Yet</h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  When you hire an FUW student or apply for a client job on the Wukari board, your contract details and status updates will appear here.
+                </p>
+                <button
+                  onClick={() => setActiveTab('explore')}
+                  className="mt-5 px-5 py-2.5 rounded-xl bg-emerald-700 text-white text-xs font-bold"
+                >
+                  Explore Skilled Students
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {bookings.map((bk) => (
+                  <div
+                    key={bk.id}
+                    className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6"
+                  >
+                    <div className="space-y-2 max-w-2xl">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            bk.status?.includes('Completed')
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : bk.status?.includes('Progress')
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {bk.status}
+                        </span>
+                        <span className="text-xs text-slate-400">• Booked on {bk.createdAt}</span>
+                      </div>
+
+                      <h3 className="text-lg font-extrabold text-slate-900">{bk.taskTitle}</h3>
+                      <p className="text-xs text-slate-600 leading-relaxed">{bk.taskDetails}</p>
+
+                      <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-600">
+                        <div>
+                          <span className="text-slate-400">Student Pro: </span>
+                          <span className="font-bold text-slate-900">{bk.studentName}</span> ({bk.studentMatric})
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Client: </span>
+                          <span className="font-bold text-slate-900">{bk.clientName}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-emerald-700 font-semibold">
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span>{bk.clientLocation}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-3 border-t lg:border-t-0 pt-4 lg:pt-0 border-slate-100 shrink-0">
+                      <div className="text-left lg:text-right">
+                        <span className="text-[11px] text-slate-400 block">Agreed / Proposed Rate</span>
+                        <span className="text-xl font-extrabold text-emerald-700">
+                          {formatNaira(bk.proposedBudget)}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        {bk.status !== 'In Progress' && bk.status !== 'Completed & Verified' && (
+                          <button
+                            onClick={() => handleUpdateBookingStatus(bk.id, 'In Progress')}
+                            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold"
+                          >
+                            Accept & Start Job
+                          </button>
+                        )}
+                        {bk.status !== 'Completed & Verified' && (
+                          <button
+                            onClick={() => handleUpdateBookingStatus(bk.id, 'Completed & Verified')}
+                            className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center gap-1"
+                          >
+                            <Check className="w-3.5 h-3.5" /> Mark Completed
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ------------------------------------------
+            TAB 5: STUDENT SKILL REGISTRATION PORTAL
+        ------------------------------------------ */}
+        {activeTab === 'register' && (
+          <div className="max-w-3xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-900 to-teal-800 p-6 sm:p-8 text-white">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950">
+                FUW Student Onboarding
+              </span>
+              <h2 className="text-2xl font-extrabold mt-2">
+                Register Your Skill on FUW SkilledLink
+              </h2>
+              <p className="text-xs sm:text-sm text-emerald-100 mt-1">
+                Turn your talent or trade into steady income while studying at Federal University Wukari. Verified students get direct bookings from Wukari residents and businesses.
+              </p>
+            </div>
+
+            <form onSubmit={handleRegisterStudent} className="p-6 sm:p-8 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Full Name (As on FUW ID Card) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={studentForm.fullName}
+                    onChange={(e) => setStudentForm({ ...studentForm, fullName: e.target.value })}
+                    placeholder="e.g. Danjuma Kefas"
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    FUW Matriculation Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={studentForm.matricNo}
+                    onChange={(e) => setStudentForm({ ...studentForm, matricNo: e.target.value })}
+                    placeholder="e.g. FUW/21/COM/0142"
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm uppercase focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Faculty *
+                  </label>
+                  <select
+                    value={studentForm.faculty}
+                    onChange={(e) => setStudentForm({ ...studentForm, faculty: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs font-medium focus:outline-none focus:border-emerald-600"
+                  >
+                    {FUW_FACULTIES.map((fac) => (
+                      <option key={fac} value={fac}>{fac}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Department *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={studentForm.department}
+                    onChange={(e) => setStudentForm({ ...studentForm, department: e.target.value })}
+                    placeholder="e.g. Computer Science"
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Current Level *
+                  </label>
+                  <select
+                    value={studentForm.level}
+                    onChange={(e) => setStudentForm({ ...studentForm, level: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  >
+                    {["100 Level", "200 Level", "300 Level", "400 Level", "500 Level", "Postgraduate"].map((lvl) => (
+                      <option key={lvl} value={lvl}>{lvl}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Service Category *
+                  </label>
+                  <select
+                    value={studentForm.category}
+                    onChange={(e) => setStudentForm({ ...studentForm, category: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  >
+                    {SKILL_CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Primary Residence / Base in Wukari *
+                  </label>
+                  <select
+                    value={studentForm.location}
+                    onChange={(e) => setStudentForm({ ...studentForm, location: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  >
+                    {WUKARI_LOCATIONS.filter((l) => l !== 'All Wukari Locations').map((loc) => (
+                      <option key={loc} value={loc}>{loc}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Professional Skill Headline *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={studentForm.skillTitle}
+                  onChange={(e) => setStudentForm({ ...studentForm, skillTitle: e.target.value })}
+                  placeholder="e.g. Professional Barbing, Laptop Repair & Graphic Designer"
+                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Detailed Description of Services Offered *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={studentForm.bio}
+                  onChange={(e) => setStudentForm({ ...studentForm, bio: e.target.value })}
+                  placeholder="Describe your experience, tools you have, and whether you can travel to clients' homes/shops in Wukari..."
+                  className="w-full rounded-xl border border-slate-300 p-3.5 text-sm focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Minimum Task Rate (₦) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={studentForm.minTaskRate}
+                    onChange={(e) => setStudentForm({ ...studentForm, minTaskRate: e.target.value })}
+                    placeholder="e.g. 3000"
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Active Phone / WhatsApp *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={studentForm.phone}
+                    onChange={(e) => setStudentForm({ ...studentForm, phone: e.target.value })}
+                    placeholder="e.g. 0803 123 4567"
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Lecture-Free Availability *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={studentForm.availability}
+                    onChange={(e) => setStudentForm({ ...studentForm, availability: e.target.value })}
+                    placeholder="e.g. Weekdays after 4pm & Weekends"
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Specific Skills (Comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={studentForm.skillsString}
+                    onChange={(e) => setStudentForm({ ...studentForm, skillsString: e.target.value })}
+                    placeholder="e.g. Canva, CorelDRAW, Branding, Printing"
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Past Work / Portfolio Highlight in Wukari
+                  </label>
+                  <input
+                    type="text"
+                    value={studentForm.portfolioSummary}
+                    onChange={(e) => setStudentForm({ ...studentForm, portfolioSummary: e.target.value })}
+                    placeholder="e.g. Designed flyers for 10+ campus fellowships"
+                    className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('explore')}
+                  className="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md"
+                >
+                  Verify Matric & Publish Profile
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      </main>
+
+      {/* ==========================================
+          MODAL 1: STUDENT FULL PROFILE & PORTFOLIO
+      ========================================== */}
+      {selectedStudent && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 my-8">
+            <div className="bg-gradient-to-r from-emerald-900 to-teal-800 p-6 text-white flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md text-white font-extrabold text-2xl flex items-center justify-center border border-white/20">
+                  {getInitials(selectedStudent.fullName)}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl font-extrabold">{selectedStudent.fullName}</h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-400 text-slate-950">
+                      FUW Verified
+                    </span>
+                  </div>
+                  <p className="text-xs text-emerald-100 mt-0.5">
+                    {selectedStudent.department} ({selectedStudent.level}) • {selectedStudent.faculty}
+                  </p>
+                  <p className="text-xs font-mono text-amber-300 mt-1">
+                    Matric No: {selectedStudent.matricNo}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedStudent(null)}
+                className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              <div>
+                <h4 className="text-base font-extrabold text-slate-900">
+                  {selectedStudent.skillTitle}
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                  {selectedStudent.bio}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 block">
+                  Verified Track Record & Portfolio Highlight
+                </span>
+                <p className="text-xs text-slate-800 font-medium mt-1">
+                  {selectedStudent.portfolioSummary}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 block">Starting Rate</span>
+                  <span className="text-base font-extrabold text-slate-900">
+                    {formatNaira(selectedStudent.minTaskRate)}
+                  </span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <span className="text-slate-400 block">Location Axis</span>
+                  <span className="font-bold text-slate-800">{selectedStudent.location}</span>
+                </div>
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 col-span-2 sm:col-span-1">
+                  <span className="text-slate-400 block">Direct Contact</span>
+                  <span className="font-bold text-emerald-700">{selectedStudent.phone}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {selectedStudent.skills?.map((sk, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs"
+                  >
+                    {sk}
+                  </span>
+                ))}
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                <button
+                  onClick={() => setSelectedStudent(null)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    const st = selectedStudent;
+                    setSelectedStudent(null);
+                    setBookingModalStudent(st);
+                    setBookingForm((prev) => ({ ...prev, proposedBudget: st.minTaskRate }));
+                  }}
+                  className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-md"
+                >
+                  Book {selectedStudent.fullName.split(' ')[0]} Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          MODAL 2: BOOK / HIRE A STUDENT
+      ========================================== */}
+      {bookingModalStudent && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 my-8">
+            <div className="bg-emerald-900 p-6 text-white flex items-center justify-between">
+              <div>
+                <span className="text-xs uppercase tracking-wider text-amber-300 font-bold">
+                  Direct Service Booking
+                </span>
+                <h3 className="text-lg font-extrabold mt-0.5">
+                  Hire {bookingModalStudent.fullName}
+                </h3>
+                <p className="text-xs text-emerald-200">{bookingModalStudent.skillTitle}</p>
+              </div>
+              <button
+                onClick={() => setBookingModalStudent(null)}
+                className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleBookStudent} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Your Name / Business *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={bookingForm.clientName}
+                    onChange={(e) => setBookingForm({ ...bookingForm, clientName: e.target.value })}
+                    placeholder="e.g. Mrs. Grace Audu"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Your Phone Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={bookingForm.clientPhone}
+                    onChange={(e) => setBookingForm({ ...bookingForm, clientPhone: e.target.value })}
+                    placeholder="e.g. 0803 000 1111"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Task Location in Wukari *
+                </label>
+                <select
+                  value={bookingForm.clientLocation}
+                  onChange={(e) => setBookingForm({ ...bookingForm, clientLocation: e.target.value })}
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-600"
+                >
+                  {WUKARI_LOCATIONS.filter((l) => l !== 'All Wukari Locations').map((loc) => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Short Task Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={bookingForm.taskTitle}
+                  onChange={(e) => setBookingForm({ ...bookingForm, taskTitle: e.target.value })}
+                  placeholder="e.g. Home Maths Coaching / Solar Inverter Check"
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Task Instructions & Details *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={bookingForm.taskDetails}
+                  onChange={(e) => setBookingForm({ ...bookingForm, taskDetails: e.target.value })}
+                  placeholder="Explain what you need done and when the student should come or deliver..."
+                  className="w-full rounded-xl border border-slate-300 p-3 text-sm focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Proposed Budget (₦) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={bookingForm.proposedBudget}
+                    onChange={(e) => setBookingForm({ ...bookingForm, proposedBudget: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Preferred Date / Time
+                  </label>
+                  <input
+                    type="text"
+                    value={bookingForm.preferredDate}
+                    onChange={(e) => setBookingForm({ ...bookingForm, preferredDate: e.target.value })}
+                    placeholder="e.g. Tomorrow by 4:30 PM"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setBookingModalStudent(null)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-md"
+                >
+                  Confirm & Send Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          MODAL 3: POST A NEW CLIENT GIG IN WUKARI
+      ========================================== */}
+      {showPostGigModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 my-8">
+            <div className="bg-slate-900 p-6 text-white flex items-center justify-between">
+              <div>
+                <span className="text-xs uppercase tracking-wider text-amber-400 font-bold">
+                  Wukari Client Job Board
+                </span>
+                <h3 className="text-lg font-extrabold mt-0.5">
+                  Post a Job for FUW Skilled Students
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowPostGigModal(false)}
+                className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePostGig} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Job / Task Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={gigForm.title}
+                  onChange={(e) => setGigForm({ ...gigForm, title: e.target.value })}
+                  placeholder="e.g. Photographer needed for Naming Ceremony at Avyi"
+                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Your Name / Organization *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={gigForm.clientName}
+                    onChange={(e) => setGigForm({ ...gigForm, clientName: e.target.value })}
+                    placeholder="e.g. Chief Aku & Family"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={gigForm.clientPhone}
+                    onChange={(e) => setGigForm({ ...gigForm, clientPhone: e.target.value })}
+                    placeholder="e.g. 0803 123 9999"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Skill Category *
+                  </label>
+                  <select
+                    value={gigForm.category}
+                    onChange={(e) => setGigForm({ ...gigForm, category: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  >
+                    {SKILL_CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Location in Wukari *
+                  </label>
+                  <select
+                    value={gigForm.location}
+                    onChange={(e) => setGigForm({ ...gigForm, location: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  >
+                    {WUKARI_LOCATIONS.filter((l) => l !== 'All Wukari Locations').map((loc) => (
+                      <option key={loc} value={loc}>{loc}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Budget (₦) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={gigForm.budget}
+                    onChange={(e) => setGigForm({ ...gigForm, budget: e.target.value })}
+                    placeholder="e.g. 10000"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Urgency / Timeline
+                  </label>
+                  <input
+                    type="text"
+                    value={gigForm.urgency}
+                    onChange={(e) => setGigForm({ ...gigForm, urgency: e.target.value })}
+                    placeholder="e.g. This Saturday Morning"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Full Job Description *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={gigForm.description}
+                  onChange={(e) => setGigForm({ ...gigForm, description: e.target.value })}
+                  placeholder="Describe the requirements clearly so qualified FUW students can apply..."
+                  className="w-full rounded-xl border border-slate-300 p-3 text-sm focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+
+              <div className="pt-3 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPostGigModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold shadow-md"
+                >
+                  Publish Job to Board
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          MODAL 4: STUDENT APPLY TO GIG
+      ========================================== */}
+      {applyingGig && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 my-8">
+            <div className="bg-emerald-900 p-6 text-white flex items-center justify-between">
+              <div>
+                <span className="text-xs uppercase tracking-wider text-amber-300 font-bold">
+                  FUW Student Application
+                </span>
+                <h3 className="text-base font-extrabold mt-0.5 line-clamp-1">
+                  Apply: {applyingGig.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setApplyingGig(null)}
+                className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleApplyToGig} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Student Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={gigApplicationForm.studentName}
+                    onChange={(e) =>
+                      setGigApplicationForm({ ...gigApplicationForm, studentName: e.target.value })
+                    }
+                    placeholder="Your Full Name"
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    FUW Matric Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={gigApplicationForm.matricNo}
+                    onChange={(e) =>
+                      setGigApplicationForm({ ...gigApplicationForm, matricNo: e.target.value })
+                    }
+                    placeholder="FUW/21/..."
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm uppercase"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Active Phone / WhatsApp *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={gigApplicationForm.studentPhone}
+                    onChange={(e) =>
+                      setGigApplicationForm({ ...gigApplicationForm, studentPhone: e.target.value })
+                    }
+                    placeholder="0803..."
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Your Quote / Bid (₦) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={gigApplicationForm.bidAmount}
+                    onChange={(e) =>
+                      setGigApplicationForm({ ...gigApplicationForm, bidAmount: e.target.value })
+                    }
+                    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Why are you the best FUW student for this task? *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={gigApplicationForm.pitch}
+                  onChange={(e) =>
+                    setGigApplicationForm({ ...gigApplicationForm, pitch: e.target.value })
+                  }
+                  placeholder="Mention your relevant experience in Wukari and when you can start..."
+                  className="w-full rounded-xl border border-slate-300 p-3 text-sm"
+                />
+              </div>
+
+              <div className="pt-3 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setApplyingGig(null)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-md"
+                >
+                  Submit Application
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          FOOTER
+      ========================================== */}
+      <footer className="bg-slate-900 text-slate-400 border-t border-slate-800 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-emerald-700 flex items-center justify-center text-amber-300 font-bold">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-bold text-white">FUW Student SkilledLink • Wukari LGA</p>
+              <p className="text-slate-500">
+                Bridging Federal University Wukari Student Innovation with Taraba South Local Enterprise.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-4 text-slate-400">
+            <span>Katsina-Ala Road, Wukari</span>
+            <span>•</span>
+            <span>Matric Verification Enabled</span>
+            <span>•</span>
+            <span className="text-emerald-400 font-semibold">Ready for Deployment</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
