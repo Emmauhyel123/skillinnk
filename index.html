@@ -1,710 +1,518 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FUW SkilledLink | Connecting Federal University Wukari Skilled Students & Wukari LGA Clients</title>
+  <title>FUW Student Skilled Link | Wukari LGA Talent Marketplace</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-        }
-      }
-    }
-  </script>
-
-  <style>
-    /* Custom Scrollbar & Utility Styles */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #047857;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #065f46;
-    }
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    @keyframes slideUpFade {
-      from {
-        opacity: 0;
-        transform: translateY(14px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .animate-fade-up {
-      animation: slideUpFade 0.28s ease-out forwards;
-    }
-  </style>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-emerald-700 selection:text-white">
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
 
-  <!-- ==========================================
-       FLOATING TOAST NOTIFICATION
-  ========================================== -->
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 hidden max-w-md bg-slate-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-emerald-500/40 flex items-start gap-3 animate-fade-up">
-    <div id="toast-icon-box" class="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0">
-      <i data-lucide="check-circle" class="w-5 h-5"></i>
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <div class="bg-emerald-950 text-emerald-100 text-xs py-2 px-4 border-b border-emerald-800">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span><strong>FUW Student Skilled Link:</strong> Verified Student Professionals serving Wukari Local Government Area, Taraba State.</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <span class="hidden sm:inline"><i class="fa-solid fa-shield-halved text-amber-400 mr-1"></i> Matric ID & SUG Verified</span>
+        <button onclick="resetDemoData()" class="underline hover:text-white text-[11px]">Reset Demo Data</button>
+      </div>
     </div>
-    <div class="flex-1">
-      <h4 id="toast-title" class="font-bold text-sm">Success</h4>
-      <p id="toast-message" class="text-xs text-slate-300 mt-0.5 leading-relaxed"></p>
-    </div>
-    <button onclick="window.appActions.hideToast()" class="text-slate-400 hover:text-white p-1">
-      <i data-lucide="x" class="w-4 h-4"></i>
-    </button>
   </div>
 
-  <!-- ==========================================
-       TOP NAVIGATION HEADER
-  ========================================== -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+  <!-- NAVIGATION HEADER -->
+  <header class="bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-20">
-        
+      <div class="flex justify-between items-center h-16">
         <!-- Brand Logo -->
-        <div onclick="window.appActions.switchTab('explore')" class="flex items-center gap-3 cursor-pointer group">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-800 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-            <i data-lucide="graduation-cap" class="w-7 h-7 text-amber-300"></i>
+        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('directory')">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-700 to-emerald-900 flex items-center justify-center text-white font-extrabold text-lg shadow-md">
+            FUW
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="font-extrabold text-xl tracking-tight text-slate-900">
-                FUW <span class="text-emerald-700">SkilledLink</span>
-              </span>
-              <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                Wukari LGA
-              </span>
+              <span class="font-extrabold text-lg tracking-tight text-slate-900">Skilled<span class="text-emerald-700">Link</span></span>
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-300">Wukari LGA</span>
             </div>
-            <p class="text-xs text-slate-500">
-              Federal University Wukari Student Talent &amp; Client Bridge
-            </p>
+            <p class="text-xs text-slate-500 hidden sm:block">Campus-to-Community Service Marketplace</p>
           </div>
         </div>
 
-        <!-- Desktop Navigation Pills -->
-        <nav class="hidden md:flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
-          <button id="nav-explore" onclick="window.appActions.switchTab('explore')" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 bg-white text-emerald-700 shadow-sm">
-            <i data-lucide="users" class="w-4 h-4"></i>
-            <span>Hire Skilled Students</span>
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center gap-1 bg-slate-100 p-1.5 rounded-xl">
+          <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn active-nav px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+            <i class="fa-solid fa-users-viewfinder mr-1.5"></i>Hire Students
           </button>
-          <button id="nav-gigs" onclick="window.appActions.switchTab('gigs')" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900">
-            <i data-lucide="briefcase" class="w-4 h-4"></i>
-            <span>Wukari Job Board</span>
-            <span id="badge-gigs-desktop" class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">4</span>
+          <button onclick="switchTab('jobs')" id="nav-jobs" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">
+            <i class="fa-solid fa-briefcase mr-1.5"></i>Wukari Job Board
+            <span id="badge-jobs" class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-emerald-100 text-emerald-800 font-bold">0</span>
           </button>
-          <button id="nav-ai-match" onclick="window.appActions.switchTab('ai-match')" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900">
-            <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
-            <span>AI Task Matcher</span>
+          <button onclick="switchTab('matcher')" id="nav-matcher" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1.5"></i>Smart Estimator
           </button>
-          <button id="nav-bookings" onclick="window.appActions.switchTab('bookings')" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900">
-            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-            <span>Contracts</span>
-            <span id="badge-bookings-desktop" class="hidden px-1.5 py-0.5 bg-amber-500 text-white rounded-full text-xs font-bold">0</span>
+          <button onclick="switchTab('contracts')" id="nav-contracts" class="nav-btn px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">
+            <i class="fa-solid fa-file-signature mr-1.5"></i>Contracts
+            <span id="badge-contracts" class="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-800 font-bold">0</span>
           </button>
         </nav>
 
-        <!-- Action CTA Buttons -->
-        <div class="flex items-center gap-2.5">
-          <button onclick="window.appActions.openPostGigModal()" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-sm transition-all">
-            <i data-lucide="plus-circle" class="w-4 h-4"></i>
-            <span>Post a Client Job</span>
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2">
+          <button onclick="openPostJobModal()" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-700 text-emerald-800 hover:bg-emerald-50 font-semibold text-xs sm:text-sm transition">
+            <i class="fa-solid fa-plus"></i> Post a Task
           </button>
-          <button onclick="window.appActions.switchTab('register')" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-all">
-            <i data-lucide="user-plus" class="w-4 h-4"></i>
-            <span>List Student Skill</span>
+          <button onclick="switchTab('register')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm shadow-sm transition">
+            <i class="fa-solid fa-user-graduate"></i> <span class="hidden sm:inline">List Student Skill</span><span class="sm:hidden">Join</span>
           </button>
         </div>
       </div>
 
       <!-- Mobile Navigation Bar -->
-      <div class="flex md:hidden items-center justify-between gap-1.5 py-2.5 overflow-x-auto border-t border-slate-100 hide-scrollbar">
-        <button id="mob-nav-explore" onclick="window.appActions.switchTab('explore')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1.5 bg-emerald-700 text-white">
-          <i data-lucide="users" class="w-3.5 h-3.5"></i>
-          <span>Students</span>
+      <div class="flex md:hidden overflow-x-auto gap-1 py-2 border-t border-slate-100 no-scrollbar">
+        <button onclick="switchTab('directory')" id="mnav-directory" class="mnav-btn active-nav flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold">
+          Hire Students
         </button>
-        <button id="mob-nav-gigs" onclick="window.appActions.switchTab('gigs')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1.5 bg-slate-100 text-slate-600">
-          <i data-lucide="briefcase" class="w-3.5 h-3.5"></i>
-          <span>Jobs (<span id="badge-gigs-mobile">4</span>)</span>
+        <button onclick="switchTab('jobs')" id="mnav-jobs" class="mnav-btn flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600">
+          Job Board
         </button>
-        <button id="mob-nav-ai-match" onclick="window.appActions.switchTab('ai-match')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1.5 bg-slate-100 text-slate-600">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
-          <span>AI Match</span>
+        <button onclick="switchTab('matcher')" id="mnav-matcher" class="mnav-btn flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600">
+          Smart Matcher
         </button>
-        <button id="mob-nav-bookings" onclick="window.appActions.switchTab('bookings')" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1.5 bg-slate-100 text-slate-600">
-          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
-          <span>Contracts (<span id="badge-bookings-mobile">0</span>)</span>
+        <button onclick="switchTab('contracts')" id="mnav-contracts" class="mnav-btn flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600">
+          Contracts
         </button>
       </div>
     </div>
   </header>
 
-  <!-- ==========================================
-       HERO SECTION (VISIBLE ON EXPLORE TAB)
-  ========================================== -->
-  <section id="hero-section" class="relative bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 relative z-10">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        
-        <!-- Left Column -->
-        <div class="lg:col-span-7 space-y-5">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-800/80 border border-emerald-600/50 text-amber-300 text-xs font-semibold">
-            <i data-lucide="shield-check" class="w-4 h-4"></i>
-            <span>Verified Federal University Wukari Student Workforce</span>
+  <!-- HERO SECTION -->
+  <section class="hero-gradient text-white py-10 sm:py-14 px-4 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto relative z-10">
+      <div class="grid lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-7 space-y-4">
+          <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-medium border border-white/20">
+            <i class="fa-solid fa-location-dot text-amber-400"></i>
+            <span>Connecting Katsina-Ala Road Campus to Wukari Metropolis</span>
           </div>
-
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
-            Hire Trusted, Skilled <span class="text-amber-400">FUW Students</span> Right Here in Wukari.
+          <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+            Hire Verified Skilled Students in <span class="text-amber-400">FUW & Wukari LGA</span>
           </h1>
-
-          <p class="text-emerald-100 text-base sm:text-lg max-w-2xl leading-relaxed">
-            From home lesson tutors in GRA and solar technicians in Hospital Area to graphic designers, web developers, and event bakers near Takum Junction — connect directly with vetted student professionals.
+          <p class="text-emerald-100 text-sm sm:text-base max-w-2xl leading-relaxed">
+            Need laptop repairs at Bantaje, a videographer for an event at Puje, solar installation near General Hospital, or a private tutor in GRA? Connect directly with vetted Federal University Wukari talents at student-friendly local rates.
           </p>
-
-          <!-- Search & Location Filter Box -->
-          <div class="bg-white p-2.5 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-2 max-w-2xl">
-            <div class="flex-1 flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-slate-200">
-              <i data-lucide="search" class="w-5 h-5 text-slate-400 shrink-0"></i>
-              <input
-                id="search-input"
-                type="text"
-                placeholder="Search skill (e.g., Solar, Tailor, Maths Tutor, Flyer)..."
-                class="w-full bg-transparent text-slate-900 placeholder-slate-400 text-sm focus:outline-none"
-              />
-              <button id="clear-search-btn" onclick="window.appActions.clearSearch()" class="hidden text-slate-400 hover:text-slate-600">
-                <i data-lucide="x" class="w-4 h-4"></i>
-              </button>
-            </div>
-            <div class="sm:w-60 flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-slate-200">
-              <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-              <select id="location-select" class="w-full bg-transparent text-slate-800 text-xs font-semibold focus:outline-none">
-                <!-- Populated by JS -->
-              </select>
-            </div>
-          </div>
-
-          <!-- Trust Badges -->
-          <div class="pt-2 flex flex-wrap items-center gap-6 text-xs text-emerald-200">
-            <div class="flex items-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4 text-amber-400"></i>
-              <span>Matric Number Verified</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4 text-amber-400"></i>
-              <span>Zero Middleman Commission</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4 text-amber-400"></i>
-              <span>Covers All 10+ Wukari Wards &amp; Campus</span>
-            </div>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button onclick="switchTab('directory')" class="px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-sm shadow-lg transition flex items-center gap-2">
+              <i class="fa-solid fa-magnifying-glass"></i> Browse Verified Students
+            </button>
+            <button onclick="openPostJobModal()" class="px-5 py-3 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-sm border border-white/25 transition flex items-center gap-2">
+              <i class="fa-solid fa-bullhorn"></i> Post Wukari Client Request
+            </button>
           </div>
         </div>
 
-        <!-- Right Column: Community Impact Stats Card -->
+        <!-- Live Platform Metrics Card -->
         <div class="lg:col-span-5">
-          <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-3xl p-6 space-y-5 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-white/10 pb-4">
-              <div>
-                <span class="text-xs uppercase tracking-wider text-amber-300 font-bold">
-                  Wukari Economic Impact
-                </span>
-                <h3 class="text-lg font-bold text-white mt-0.5">
-                  Town-Meets-Gown Ecosystem
-                </h3>
-              </div>
-              <span id="cloud-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-400/30">
-                Active Directory
-              </span>
+          <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 grid grid-cols-2 gap-4">
+            <div class="bg-black/20 p-4 rounded-xl">
+              <p class="text-xs text-emerald-200">Verified FUW Students</p>
+              <p id="stat-students" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">0</p>
+              <span class="text-[11px] text-amber-300"><i class="fa-solid fa-id-card mr-1"></i>Matric Checked</span>
             </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/10">
-                <p id="stat-students-count" class="text-2xl font-extrabold text-amber-400">6+</p>
-                <p class="text-xs text-emerald-100 mt-1">Verified FUW Student Pros</p>
-              </div>
-              <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/10">
-                <p id="stat-gigs-count" class="text-2xl font-extrabold text-emerald-300">4</p>
-                <p class="text-xs text-emerald-100 mt-1">Active Client Opportunities</p>
-              </div>
-              <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/10">
-                <p class="text-2xl font-extrabold text-white">4.88 ★</p>
-                <p class="text-xs text-emerald-100 mt-1">Avg Wukari Client Rating</p>
-              </div>
-              <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/10">
-                <p class="text-2xl font-extrabold text-amber-300">&lt; 30 mins</p>
-                <p class="text-xs text-emerald-100 mt-1">Response across Wukari</p>
-              </div>
+            <div class="bg-black/20 p-4 rounded-xl">
+              <p class="text-xs text-emerald-200">Wukari Wards Covered</p>
+              <p class="text-2xl sm:text-3xl font-extrabold text-white mt-1">10+</p>
+              <span class="text-[11px] text-emerald-300">Campus, Puje, Avyi, Hospital</span>
             </div>
-
-            <div class="flex flex-col sm:flex-row gap-2.5 pt-1">
-              <button onclick="window.appActions.openPostGigModal()" class="flex-1 py-3 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all">
-                <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                <span>Post a Task for Students</span>
-              </button>
-              <button onclick="window.appActions.switchTab('ai-match')" class="flex-1 py-3 px-4 rounded-xl bg-emerald-800/90 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 border border-emerald-500/40 transition-all">
-                <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
-                <span>Try AI Skill Matcher</span>
-              </button>
+            <div class="bg-black/20 p-4 rounded-xl">
+              <p class="text-xs text-emerald-200">Open Wukari Gigs</p>
+              <p id="stat-jobs" class="text-2xl sm:text-3xl font-extrabold text-amber-400 mt-1">0</p>
+              <span class="text-[11px] text-emerald-200">Active local requests</span>
+            </div>
+            <div class="bg-black/20 p-4 rounded-xl">
+              <p class="text-xs text-emerald-200">Active Contracts</p>
+              <p id="stat-contracts" class="text-2xl sm:text-3xl font-extrabold text-white mt-1">0</p>
+              <span class="text-[11px] text-emerald-300">Direct WhatsApp & Cash/Transfer</span>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- ==========================================
-       MAIN APPLICATION WORKSPACE
-  ========================================== -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- MAIN APPLICATION CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
 
-    <!-- ------------------------------------------
-         TAB 1: EXPLORE SKILLED STUDENTS
-    ------------------------------------------ -->
-    <section id="tab-explore" class="space-y-8">
-      <!-- Category Pills & Filter Controls -->
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-        <div id="category-pills-container" class="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar">
-          <!-- Populated by JS -->
-        </div>
+    <!-- TAB 1: STUDENT DIRECTORY -->
+    <section id="tab-directory" class="tab-panel space-y-6">
+      <!-- Search & Filter Controls -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+          <!-- Search Input -->
+          <div class="md:col-span-5 relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400"></i>
+            <input
+              type="text"
+              id="search-input"
+              oninput="renderStudents()"
+              placeholder="Search skill, name, department (e.g., Video Editing, Computer Eng, Tailoring)..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
+            />
+          </div>
 
-        <div class="flex flex-wrap items-center gap-3 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100">
-          <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-            <input id="verified-only-checkbox" type="checkbox" class="rounded text-emerald-700 focus:ring-emerald-600" />
-            <span>Matric Verified Only</span>
-          </label>
-
-          <div class="flex items-center gap-1.5 text-xs">
-            <i data-lucide="filter" class="w-3.5 h-3.5 text-slate-400"></i>
-            <span class="text-slate-500">Sort:</span>
-            <select id="sort-select" class="bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 font-semibold text-slate-800 focus:outline-none">
-              <option value="rating">Highest Rated</option>
-              <option value="jobs">Most Jobs Completed</option>
-              <option value="price-low">Lowest Starting Rate</option>
+          <!-- Wukari Area / Ward Filter -->
+          <div class="md:col-span-3">
+            <select id="location-filter" onchange="renderStudents()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+              <option value="ALL">All Wukari Areas / Wards</option>
+              <option value="FUW Main Campus (Katsina-Ala Rd)">FUW Main Campus (Katsina-Ala Rd)</option>
+              <option value="Bantaje / Off-Campus Lodges">Bantaje / Off-Campus Lodges</option>
+              <option value="General Hospital Axis">General Hospital Axis</option>
+              <option value="Takum Junction">Takum Junction</option>
+              <option value="Wukari New Market / Puje">Wukari New Market / Puje</option>
+              <option value="Avyi Ward">Avyi Ward</option>
+              <option value="GRA / Kwararafa Axis">GRA / Kwararafa Axis</option>
+              <option value="Old Market / Mission Quarters">Old Market / Mission Quarters</option>
             </select>
           </div>
-        </div>
-      </div>
 
-      <!-- Directory Count & Active Filter Reset -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-xl font-extrabold text-slate-900">
-            Available FUW Student Specialists (<span id="filtered-count">0</span>)
-          </h2>
-          <p class="text-xs text-slate-500 mt-0.5">
-            Showing verified students serving <span id="active-location-label" class="font-semibold text-emerald-700">All Wukari Locations</span>
-          </p>
-        </div>
-        <button id="reset-filters-btn" onclick="window.appActions.resetFilters()" class="hidden text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1">
-          <i data-lucide="x" class="w-3.5 h-3.5"></i>
-          <span>Reset Filters</span>
-        </button>
-      </div>
-
-      <!-- Students Cards Grid -->
-      <div id="students-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Rendered by JS -->
-      </div>
-    </section>
-
-    <!-- ------------------------------------------
-         TAB 2: WUKARI CLIENT JOB & GIG BOARD
-    ------------------------------------------ -->
-    <section id="tab-gigs" class="hidden space-y-6">
-      <div class="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div class="space-y-2 max-w-2xl">
-          <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
-            Wukari Local Government Job Board
-          </span>
-          <h2 class="text-2xl sm:text-3xl font-extrabold">
-            Local Client Requests &amp; Campus Gigs
-          </h2>
-          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Are you a resident, shop owner, lecturer, or organization in Wukari? Post what you need done and let verified FUW students send you affordable quotes.
-          </p>
-        </div>
-        <button onclick="window.appActions.openPostGigModal()" class="px-5 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-xl shrink-0 transition-all">
-          <i data-lucide="plus-circle" class="w-5 h-5"></i>
-          <span>Post a New Job in Wukari</span>
-        </button>
-      </div>
-
-      <div id="gigs-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Rendered by JS -->
-      </div>
-    </section>
-
-    <!-- ------------------------------------------
-         TAB 3: AI SMART MATCHMAKER & COST ESTIMATOR
-    ------------------------------------------ -->
-    <section id="tab-ai-match" class="hidden max-w-4xl mx-auto space-y-6">
-      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-            <i data-lucide="sparkles" class="w-6 h-6"></i>
+          <!-- Sort Order -->
+          <div class="md:col-span-2">
+            <select id="sort-filter" onchange="renderStudents()" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+              <option value="rating">Top Rated First</option>
+              <option value="price-low">Lowest Rate (₦)</option>
+              <option value="jobs">Most Jobs Done</option>
+            </select>
           </div>
-          <div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">
-              AI Wukari Task Scope &amp; Student Matchmaker
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-500">
-              Describe what you need fixed, taught, designed, or cooked in Wukari — our Gemini AI advisor will estimate local Naira pricing and match you with the right FUW student.
-            </p>
-          </div>
-        </div>
 
-        <form id="ai-match-form" class="space-y-4 mt-6">
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
-              Describe your task or project in Wukari
+          <!-- Verified Checkbox -->
+          <div class="md:col-span-2 flex items-center">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-slate-700 bg-slate-100 px-3 py-2.5 rounded-xl w-full justify-center border border-slate-200">
+              <input type="checkbox" id="verified-only" onchange="renderStudents()" class="accent-emerald-700 w-4 h-4" />
+              <span>Matric Verified</span>
             </label>
+          </div>
+        </div>
+
+        <!-- Category Pills -->
+        <div id="category-pills" class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar"></div>
+      </div>
+
+      <!-- Student Cards Grid -->
+      <div id="students-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- TAB 2: WUKARI JOB BOARD -->
+    <section id="tab-jobs" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Wukari LGA Client Job & Gig Board</h2>
+          <p class="text-sm text-slate-600">Local residents, shop owners, lecturers, and fellow students post tasks here for skilled FUW students to bid on.</p>
+        </div>
+        <button onclick="openPostJobModal()" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-sm shadow-sm flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Post New Wukari Gig
+        </button>
+      </div>
+
+      <div id="jobs-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+    </section>
+
+    <!-- TAB 3: SMART TASK ESTIMATOR & MATCHER -->
+    <section id="tab-matcher" class="tab-panel hidden space-y-6">
+      <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <div class="max-w-3xl space-y-4">
+          <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-400 text-slate-950">
+            <i class="fa-solid fa-bolt"></i> Wukari Smart Rate & Student Matcher
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold">Describe What You Need Fixed or Built in Wukari</h2>
+          <p class="text-emerald-100 text-sm">
+            Our local estimator calculates a fair Wukari student budget in Naira (₦), breaks down the job steps, and recommends the best verified FUW students for your task.
+          </p>
+
+          <div class="space-y-3 pt-2">
             <textarea
-              id="ai-prompt-input"
+              id="matcher-prompt"
               rows="3"
-              placeholder="Example: I need someone near Hospital Area to fix my laptop Windows installation and also design 50 flyers for my provisions store at New Market..."
-              class="w-full rounded-2xl border border-slate-300 p-4 text-sm focus:outline-none focus:border-emerald-600"
+              placeholder="Example: I need someone to shoot and edit a promotional video for my boutique near Takum Junction and design 3 flyers..."
+              class="w-full p-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-emerald-200/60 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
             ></textarea>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="fillSamplePrompt('I need a computer engineering student to troubleshoot my laptop that keeps shutting down and install Windows 11 near Bantaje.')" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg border border-white/15">
+                💻 Laptop Repair @ Bantaje
+              </button>
+              <button onclick="fillSamplePrompt('We need a videographer and keyboardist for a weekend thanksgiving event near General Hospital Wukari.')" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg border border-white/15">
+                🎬 Event Videography & Music
+              </button>
+              <button onclick="fillSamplePrompt('I want a modern responsive website for my business at Wukari New Market with WhatsApp order button.')" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg border border-white/15">
+                🌐 Business Website @ New Market
+              </button>
+            </div>
+            <div class="pt-2">
+              <button onclick="runSmartMatcher()" class="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-sm shadow-md transition flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Task & Match FUW Students
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Matcher Output Container -->
+      <div id="matcher-results" class="hidden space-y-6"></div>
+    </section>
+
+    <!-- TAB 4: ACTIVE CONTRACTS & BOOKINGS -->
+    <section id="tab-contracts" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Your Wukari Service Contracts & Bookings</h2>
+          <p class="text-sm text-slate-600">Track ongoing jobs between Wukari clients and FUW students, update milestones, and mark tasks as completed.</p>
+        </div>
+      </div>
+
+      <div id="contracts-list" class="space-y-4"></div>
+    </section>
+
+    <!-- TAB 5: STUDENT SKILL REGISTRATION -->
+    <section id="tab-register" class="tab-panel hidden">
+      <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="border-b border-slate-200 pb-4 mb-6">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md">FUW Student Onboarding</span>
+          <h2 class="text-2xl font-extrabold text-slate-900 mt-2">List Your Skill on FUW Skilled Link</h2>
+          <p class="text-sm text-slate-600">Get discovered by clients across Wukari LGA and earn while studying at Federal University Wukari.</p>
+        </div>
+
+        <form id="register-student-form" onsubmit="handleStudentRegistration(event)" class="space-y-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Full Name *</label>
+              <input type="text" id="reg-name" required placeholder="e.g., Joshua Danjuma" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">FUW Matric Number *</label>
+              <input type="text" id="reg-matric" required placeholder="e.g., FUW/21/CPE/0412" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm uppercase" />
+            </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="text-xs text-slate-400">Try sample:</span>
-            <button type="button" onclick="window.appActions.setAiSample('Need a 400L Science tutor for my SS3 daughter near GRA Wukari')" class="text-xs bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 px-3 py-1.5 rounded-xl transition-colors">
-              "Need a 400L Science tutor for my SS3 daughter near GRA Wukari"
-            </button>
-            <button type="button" onclick="window.appActions.setAiSample('My solar inverter in Bantaje lodge is beeping and not charging')" class="text-xs bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 px-3 py-1.5 rounded-xl transition-colors">
-              "My solar inverter in Bantaje lodge is beeping and not charging"
-            </button>
-            <button type="button" onclick="window.appActions.setAiSample('Need small chops & birthday cake delivered to FUW Main Campus')" class="text-xs bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 px-3 py-1.5 rounded-xl transition-colors">
-              "Need small chops &amp; birthday cake delivered to FUW Main Campus"
-            </button>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Department *</label>
+              <input type="text" id="reg-dept" required placeholder="e.g., Computer Engineering" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Level *</label>
+              <select id="reg-level" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white">
+                <option value="100L">100 Level</option>
+                <option value="200L">200 Level</option>
+                <option value="300L">300 Level</option>
+                <option value="400L" selected>400 Level</option>
+                <option value="500L">500 Level</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Primary Category *</label>
+              <select id="reg-category" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white">
+                <option value="Tech & Software">Tech & Software</option>
+                <option value="Media & Videography">Media & Videography</option>
+                <option value="Hardware & Engineering">Hardware & Engineering</option>
+                <option value="Fashion & Beauty">Fashion & Beauty</option>
+                <option value="Academic & Tutoring">Academic & Tutoring</option>
+                <option value="Music & Events">Music & Events</option>
+                <option value="Home & Electrical">Home & Electrical</option>
+              </select>
+            </div>
           </div>
 
-          <button
-            id="ai-submit-btn"
-            type="submit"
-            class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all"
-          >
-            <i data-lucide="sparkles" class="w-4 h-4 text-amber-300"></i>
-            <span id="ai-submit-text">Generate Local Estimate &amp; Match Students</span>
-          </button>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Service Headline / Title *</label>
+              <input type="text" id="reg-title" required placeholder="e.g., Mobile Videographer, CapCut Editor & Web Dev" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Base Location in Wukari *</label>
+              <select id="reg-location" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white">
+                <option value="FUW Main Campus (Katsina-Ala Rd)">FUW Main Campus (Katsina-Ala Rd)</option>
+                <option value="Bantaje / Off-Campus Lodges">Bantaje / Off-Campus Lodges</option>
+                <option value="General Hospital Axis">General Hospital Axis</option>
+                <option value="Takum Junction">Takum Junction</option>
+                <option value="Wukari New Market / Puje">Wukari New Market / Puje</option>
+                <option value="Avyi Ward">Avyi Ward</option>
+                <option value="GRA / Kwararafa Axis">GRA / Kwararafa Axis</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Starting Rate (₦) *</label>
+              <input type="number" id="reg-rate" required min="1000" step="500" placeholder="5000" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">WhatsApp Phone *</label>
+              <input type="tel" id="reg-phone" required placeholder="08031234567" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Lecture-Free Availability *</label>
+              <input type="text" id="reg-availability" required placeholder="Weekdays after 3PM & Weekends" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Key Skills (Comma Separated) *</label>
+            <input type="text" id="reg-skills" required placeholder="e.g., CapCut, Canva, HTML/CSS, Laptop Repair, Keyboardist" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Service Bio & Past Work in Wukari *</label>
+            <textarea id="reg-bio" required rows="3" placeholder="Tell Wukari clients about your tools, experience, and past jobs around campus or town..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm"></textarea>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-3">
+            <button type="button" onclick="switchTab('directory')" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold">Cancel</button>
+            <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold shadow-md">
+              Publish Student Profile
+            </button>
+          </div>
         </form>
       </div>
-
-      <!-- AI Result Output Container -->
-      <div id="ai-result-container" class="hidden"></div>
-    </section>
-
-    <!-- ------------------------------------------
-         TAB 4: ACTIVE BOOKINGS & CONTRACTS TRACKER
-    ------------------------------------------ -->
-    <section id="tab-bookings" class="hidden space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200">
-        <div>
-          <h2 class="text-xl font-extrabold text-slate-900">
-            Service Bookings &amp; Gig Applications (<span id="bookings-header-count">0</span>)
-          </h2>
-          <p class="text-xs text-slate-500 mt-1">
-            Track direct student hire requests and gig applications across Wukari LGA in real time.
-          </p>
-        </div>
-        <button onclick="window.appActions.switchTab('explore')" class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold self-start sm:self-auto">
-          + Browse More Students
-        </button>
-      </div>
-
-      <div id="bookings-list-container" class="space-y-4">
-        <!-- Rendered by JS -->
-      </div>
-    </section>
-
-    <!-- ------------------------------------------
-         TAB 5: STUDENT SKILL REGISTRATION PORTAL
-    ------------------------------------------ -->
-    <section id="tab-register" class="hidden max-w-3xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-      <div class="bg-gradient-to-r from-emerald-900 to-teal-800 p-6 sm:p-8 text-white">
-        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950">
-          FUW Student Onboarding
-        </span>
-        <h2 class="text-2xl font-extrabold mt-2">
-          Register Your Skill on FUW SkilledLink
-        </h2>
-        <p class="text-xs sm:text-sm text-emerald-100 mt-1">
-          Turn your talent or trade into steady income while studying at Federal University Wukari. Verified students get direct bookings from Wukari residents and businesses.
-        </p>
-      </div>
-
-      <form id="register-student-form" class="p-6 sm:p-8 space-y-5">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Full Name (As on FUW ID Card) *</label>
-            <input id="reg-fullname" type="text" required placeholder="e.g. Danjuma Kefas" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">FUW Matriculation Number *</label>
-            <input id="reg-matric" type="text" required placeholder="e.g. FUW/21/COM/0142" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm uppercase focus:outline-none focus:border-emerald-600" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Faculty *</label>
-            <select id="reg-faculty" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-xs font-medium focus:outline-none focus:border-emerald-600">
-              <!-- Populated by JS -->
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Department *</label>
-            <input id="reg-department" type="text" required placeholder="e.g. Computer Science" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Current Level *</label>
-            <select id="reg-level" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-600">
-              <option value="100 Level">100 Level</option>
-              <option value="200 Level">200 Level</option>
-              <option value="300 Level" selected>300 Level</option>
-              <option value="400 Level">400 Level</option>
-              <option value="500 Level">500 Level</option>
-              <option value="Postgraduate">Postgraduate</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Service Category *</label>
-            <select id="reg-category" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600">
-              <!-- Populated by JS -->
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Primary Residence / Base in Wukari *</label>
-            <select id="reg-location" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600">
-              <!-- Populated by JS -->
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Professional Skill Headline *</label>
-          <input id="reg-skill-title" type="text" required placeholder="e.g. Professional Barbing, Laptop Repair & Graphic Designer" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Detailed Description of Services Offered *</label>
-          <textarea id="reg-bio" rows="3" required placeholder="Describe your experience, tools you have, and whether you can travel to clients' homes/shops in Wukari..." class="w-full rounded-xl border border-slate-300 p-3.5 text-sm focus:outline-none focus:border-emerald-600"></textarea>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Minimum Task Rate (₦) *</label>
-            <input id="reg-rate" type="number" required placeholder="e.g. 3000" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Active Phone / WhatsApp *</label>
-            <input id="reg-phone" type="text" required placeholder="e.g. 0803 123 4567" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Lecture-Free Availability *</label>
-            <input id="reg-availability" type="text" required value="Evenings & Weekends" placeholder="e.g. Weekdays after 4pm & Weekends" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Specific Skills (Comma separated)</label>
-            <input id="reg-skills" type="text" placeholder="e.g. Canva, CorelDRAW, Branding, Printing" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Past Work / Portfolio Highlight in Wukari</label>
-            <input id="reg-portfolio" type="text" placeholder="e.g. Designed flyers for 10+ campus fellowships" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-        </div>
-
-        <div class="pt-3 flex items-center justify-end gap-3">
-          <button type="button" onclick="window.appActions.switchTab('explore')" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">
-            Cancel
-          </button>
-          <button type="submit" class="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-md">
-            Verify Matric &amp; Publish Profile
-          </button>
-        </div>
-      </form>
     </section>
 
   </main>
 
-  <!-- ==========================================
-       MODAL 1: STUDENT PROFILE & PORTFOLIO
-  ========================================== -->
-  <div id="profile-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div id="profile-modal-content" class="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-200 my-8 animate-fade-up">
-      <!-- Populated dynamically by JS -->
-    </div>
-  </div>
-
-  <!-- ==========================================
-       MODAL 2: DIRECT BOOK / HIRE A STUDENT
-  ========================================== -->
-  <div id="booking-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 my-8 animate-fade-up">
-      <div class="bg-emerald-900 p-6 text-white flex items-center justify-between">
+  <!-- MODAL 1: HIRE / BOOK STUDENT -->
+  <div id="hire-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-fade-in">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3 mb-4">
         <div>
-          <span class="text-xs uppercase tracking-wider text-amber-300 font-bold">Direct Service Booking</span>
-          <h3 id="booking-modal-student-name" class="text-lg font-extrabold mt-0.5">Hire Student</h3>
-          <p id="booking-modal-student-skill" class="text-xs text-emerald-200"></p>
+          <span class="text-[11px] font-bold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Direct Wukari Booking</span>
+          <h3 id="hire-modal-title" class="text-lg font-extrabold text-slate-900 mt-1">Hire Student</h3>
         </div>
-        <button onclick="window.appActions.closeBookingModal()" class="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button onclick="closeHireModal()" class="text-slate-400 hover:text-slate-700 text-xl">&times;</button>
       </div>
 
-      <form id="booking-form" class="p-6 space-y-4">
+      <form id="hire-form" onsubmit="submitHireContract(event)" class="space-y-4">
+        <input type="hidden" id="hire-student-id" />
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Your Name / Business Name *</label>
+          <input type="text" id="hire-client-name" required placeholder="e.g., Alhaji Musa / Kwararafa Stores" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
+        </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Your Name / Business *</label>
-            <input id="book-client-name" type="text" required placeholder="e.g. Mrs. Grace Audu" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Your Phone (WhatsApp) *</label>
+            <input type="tel" id="hire-client-phone" required placeholder="08030000000" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Your Phone Number *</label>
-            <input id="book-client-phone" type="text" required placeholder="e.g. 0803 000 1111" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Meeting / Task Location in Wukari *</label>
+            <select id="hire-location" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="FUW Main Campus (Katsina-Ala Rd)">FUW Main Campus (Katsina-Ala Rd)</option>
+              <option value="Bantaje / Off-Campus Lodges">Bantaje / Off-Campus Lodges</option>
+              <option value="General Hospital Axis">General Hospital Axis</option>
+              <option value="Takum Junction">Takum Junction</option>
+              <option value="Wukari New Market / Puje">Wukari New Market / Puje</option>
+              <option value="Avyi Ward">Avyi Ward</option>
+              <option value="GRA / Kwararafa Axis">GRA / Kwararafa Axis</option>
+            </select>
           </div>
         </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Task Location in Wukari *</label>
-          <select id="book-client-location" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-600">
-            <!-- Populated by JS -->
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Short Task Title *</label>
-          <input id="book-task-title" type="text" required placeholder="e.g. Home Maths Coaching / Solar Inverter Check" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Task Instructions &amp; Details *</label>
-          <textarea id="book-task-details" rows="3" required placeholder="Explain what you need done and when the student should come or deliver..." class="w-full rounded-xl border border-slate-300 p-3 text-sm focus:outline-none focus:border-emerald-600"></textarea>
-        </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Proposed Budget (₦) *</label>
-            <input id="book-budget" type="number" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Proposed Budget (₦) *</label>
+            <input type="number" id="hire-budget" required min="1000" step="500" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Preferred Date / Time</label>
-            <input id="book-date" type="text" placeholder="e.g. Tomorrow by 4:30 PM" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Preferred Date *</label>
+            <input type="date" id="hire-date" required class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
           </div>
         </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Task Description *</label>
+          <textarea id="hire-description" required rows="3" placeholder="Describe what you want done, tools required, and preferred time..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
+        </div>
 
-        <div class="pt-3 flex items-center justify-end gap-2">
-          <button type="button" onclick="window.appActions.closeBookingModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">
-            Cancel
-          </button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-md">
-            Confirm &amp; Send Request
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900">
+          <i class="fa-solid fa-shield-heart mr-1"></i>
+          <strong>Wukari Safe Meet Tip:</strong> For first-time meetings, meet at public campus spots, shop fronts, or daylight locations in Wukari.
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeHireModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold">
+            Create Contract & Connect
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ==========================================
-       MODAL 3: POST A NEW CLIENT GIG IN WUKARI
-  ========================================== -->
-  <div id="post-gig-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 my-8 animate-fade-up">
-      <div class="bg-slate-900 p-6 text-white flex items-center justify-between">
+  <!-- MODAL 2: POST NEW WUKARI GIG -->
+  <div id="post-job-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-fade-in">
+      <div class="flex justify-between items-start border-b border-slate-100 pb-3 mb-4">
         <div>
-          <span class="text-xs uppercase tracking-wider text-amber-400 font-bold">Wukari Client Job Board</span>
-          <h3 class="text-lg font-extrabold mt-0.5">Post a Job for FUW Skilled Students</h3>
+          <span class="text-[11px] font-bold uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded">Client Job Request</span>
+          <h3 class="text-lg font-extrabold text-slate-900 mt-1">Post a Job for FUW Students</h3>
         </div>
-        <button onclick="window.appActions.closePostGigModal()" class="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button onclick="closePostJobModal()" class="text-slate-400 hover:text-slate-700 text-xl">&times;</button>
       </div>
 
-      <form id="post-gig-form" class="p-6 space-y-4">
+      <form id="post-job-form" onsubmit="submitNewJob(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Job / Task Title *</label>
-          <input id="gig-title" type="text" required placeholder="e.g. Photographer needed for Naming Ceremony at Avyi" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm focus:outline-none focus:border-emerald-600" />
+          <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Job Title *</label>
+          <input type="text" id="job-title" required placeholder="e.g., Need Videographer & Editor for Graduation Shoot" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
         </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Your Name / Organization *</label>
-            <input id="gig-client-name" type="text" required placeholder="e.g. Chief Aku & Family" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Phone Number *</label>
-            <input id="gig-client-phone" type="text" required placeholder="e.g. 0803 123 9999" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Skill Category *</label>
-            <select id="gig-category" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600">
-              <!-- Populated by JS -->
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Category *</label>
+            <select id="job-category" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="Media & Videography">Media & Videography</option>
+              <option value="Tech & Software">Tech & Software</option>
+              <option value="Hardware & Engineering">Hardware & Engineering</option>
+              <option value="Fashion & Beauty">Fashion & Beauty</option>
+              <option value="Academic & Tutoring">Academic & Tutoring</option>
+              <option value="Music & Events">Music & Events</option>
+              <option value="Home & Electrical">Home & Electrical</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Location in Wukari *</label>
-            <select id="gig-location" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600">
-              <!-- Populated by JS -->
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Wukari Location *</label>
+            <select id="job-location" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="FUW Main Campus (Katsina-Ala Rd)">FUW Main Campus (Katsina-Ala Rd)</option>
+              <option value="Bantaje / Off-Campus Lodges">Bantaje / Off-Campus Lodges</option>
+              <option value="General Hospital Axis">General Hospital Axis</option>
+              <option value="Takum Junction">Takum Junction</option>
+              <option value="Wukari New Market / Puje">Wukari New Market / Puje</option>
+              <option value="Avyi Ward">Avyi Ward</option>
+              <option value="GRA / Kwararafa Axis">GRA / Kwararafa Axis</option>
             </select>
           </div>
         </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Budget (₦) *</label>
-            <input id="gig-budget" type="number" required placeholder="e.g. 10000" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Client Name *</label>
+            <input type="text" id="job-client" required placeholder="e.g., Mrs. Grace" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Urgency / Timeline</label>
-            <input id="gig-urgency" type="text" value="Medium - Within 3 Days" placeholder="e.g. This Saturday Morning" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Budget (₦) *</label>
+            <input type="number" id="job-budget" required min="1000" step="500" placeholder="15000" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-700 mb-1">WhatsApp Phone *</label>
+            <input type="tel" id="job-phone" required placeholder="08031234567" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm" />
           </div>
         </div>
-
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Full Job Description *</label>
-          <textarea id="gig-description" rows="3" required placeholder="Describe the requirements clearly so qualified FUW students can apply..." class="w-full rounded-xl border border-slate-300 p-3 text-sm focus:outline-none focus:border-emerald-600"></textarea>
+          <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Details & Requirements *</label>
+          <textarea id="job-desc" required rows="3" placeholder="Explain what is needed and how soon..." class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm"></textarea>
         </div>
-
-        <div class="pt-3 flex items-center justify-end gap-2">
-          <button type="button" onclick="window.appActions.closePostGigModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">
-            Cancel
-          </button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-extrabold shadow-md">
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closePostJobModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold">
             Publish Job to Board
           </button>
         </div>
@@ -712,1037 +520,24 @@
     </div>
   </div>
 
-  <!-- ==========================================
-       MODAL 4: STUDENT APPLY TO GIG
-  ========================================== -->
-  <div id="apply-gig-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 my-8 animate-fade-up">
-      <div class="bg-emerald-900 p-6 text-white flex items-center justify-between">
-        <div>
-          <span class="text-xs uppercase tracking-wider text-amber-300 font-bold">FUW Student Application</span>
-          <h3 id="apply-gig-modal-title" class="text-base font-extrabold mt-0.5 line-clamp-1">Apply to Gig</h3>
-        </div>
-        <button onclick="window.appActions.closeApplyGigModal()" class="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-8 px-4 border-t border-slate-800 mt-12">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div>
+        <p class="font-bold text-white text-sm">FUW Student Skilled Link — Wukari LGA</p>
+        <p class="mt-1">Bridging town and gown between Federal University Wukari (Katsina-Ala Rd) and the Wukari community.</p>
       </div>
-
-      <form id="apply-gig-form" class="p-6 space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Student Full Name *</label>
-            <input id="app-student-name" type="text" required placeholder="Your Full Name" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">FUW Matric Number *</label>
-            <input id="app-student-matric" type="text" required placeholder="FUW/21/..." class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm uppercase focus:outline-none focus:border-emerald-600" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Active Phone / WhatsApp *</label>
-            <input id="app-student-phone" type="text" required placeholder="0803..." class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Your Quote / Bid (₦) *</label>
-            <input id="app-bid-amount" type="number" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:border-emerald-600" />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Why are you the best FUW student for this task? *</label>
-          <textarea id="app-pitch" rows="3" required placeholder="Mention your relevant experience in Wukari and when you can start..." class="w-full rounded-xl border border-slate-300 p-3 text-sm focus:outline-none focus:border-emerald-600"></textarea>
-        </div>
-
-        <div class="pt-3 flex items-center justify-end gap-2">
-          <button type="button" onclick="window.appActions.closeApplyGigModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">
-            Cancel
-          </button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-md">
-            Submit Application
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ==========================================
-       FOOTER
-  ========================================== -->
-  <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-emerald-700 flex items-center justify-center text-amber-300 font-bold">
-          <i data-lucide="graduation-cap" class="w-5 h-5"></i>
-        </div>
-        <div>
-          <p class="font-bold text-white">FUW Student SkilledLink • Wukari LGA</p>
-          <p class="text-slate-500">
-            Bridging Federal University Wukari Student Innovation with Taraba South Local Enterprise.
-          </p>
-        </div>
-      </div>
-      <div class="flex flex-wrap gap-4 text-slate-400">
-        <span>Katsina-Ala Road, Wukari</span>
-        <span>•</span>
-        <span>Matric Verification Enabled</span>
-        <span>•</span>
-        <span class="text-emerald-400 font-semibold">HTML5 / Tailwind / JS Ready</span>
+      <div class="flex gap-4">
+        <span class="text-emerald-400"><i class="fa-solid fa-check-circle mr-1"></i>100% Local Storage Ready</span>
+        <span>Built with HTML5, Tailwind CSS & Vanilla JS</span>
       </div>
     </div>
   </footer>
 
-  <!-- ==========================================
-       APPLICATION JAVASCRIPT & FIREBASE MODULE
-  ========================================== -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, addDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // ==========================================
-    // 1. LOCAL WUKARI CONSTANTS & SEED DATA
-    // ==========================================
-    const WUKARI_LOCATIONS = [
-      "All Wukari Locations",
-      "FUW Main Campus (Katsina-Ala Rd)",
-      "Bantaje Quarters / Off-Campus",
-      "Hospital Area / General Hospital Rd",
-      "Takum Junction & Environs",
-      "Avyi Quarters",
-      "Puje Ward & New Market Area",
-      "Wukari Old Market / Town Center",
-      "GRA Wukari",
-      "IBI Roundabout Axis",
-      "Kente Road Area"
-    ];
-
-    const SKILL_CATEGORIES = [
-      { id: 'all', name: 'All Categories' },
-      { id: 'tech', name: 'Tech, Web & IT Support' },
-      { id: 'academic', name: 'Academic Tutoring & Research' },
-      { id: 'fashion', name: 'Tailoring, Fashion & Beauty' },
-      { id: 'media', name: 'Photography, Graphics & Media' },
-      { id: 'catering', name: 'Catering, Pastries & Events' },
-      { id: 'artisans', name: 'Phone/PC Repair, Electrical & Solar' }
-    ];
-
-    const FUW_FACULTIES = [
-      "Faculty of Pure & Applied Sciences",
-      "Faculty of Agriculture & Life Sciences",
-      "Faculty of Humanities, Management & Social Sciences",
-      "Faculty of Education",
-      "Faculty of Engineering",
-      "College of Medicine & Health Sciences",
-      "Faculty of Law"
-    ];
-
-    const INITIAL_STUDENTS = [
-      {
-        id: "seed-student-1",
-        fullName: "Terhemba Joshua",
-        matricNo: "FUW/21/COM/0142",
-        department: "Computer Science",
-        faculty: "Faculty of Pure & Applied Sciences",
-        level: "400 Level",
-        category: "tech",
-        skillTitle: "Full-Stack Web Developer & Laptop Technician",
-        bio: "Experienced in building responsive business websites for SMEs in Taraba State, student project software implementation, and diagnosing/fixing Windows & Mac software issues.",
-        hourlyRate: 3500,
-        minTaskRate: 5000,
-        location: "FUW Main Campus (Katsina-Ala Rd)",
-        phone: "0803 456 7890",
-        whatsapp: "2348034567890",
-        verified: true,
-        rating: 4.9,
-        reviewsCount: 28,
-        completedJobs: 34,
-        availability: "Evenings & Weekends",
-        skills: ["React & Node.js", "WordPress", "OS Installation", "Data Analysis (SPSS)"],
-        portfolioSummary: "Built the digital inventory system for 3 pharmacies near Takum Junction and mentored 20+ final year students.",
-        avatarColor: "from-emerald-600 to-teal-700"
-      },
-      {
-        id: "seed-student-2",
-        fullName: "Atoshi Grace Danjuma",
-        matricNo: "FUW/22/ECO/0089",
-        department: "Economics",
-        faculty: "Faculty of Humanities, Management & Social Sciences",
-        level: "300 Level",
-        category: "fashion",
-        skillTitle: "Bespoke Female Couture, Ankara & Bridal Stylist",
-        bio: "Creative fashion designer specializing in modern corporate wear, matriculation/convocation outfits, native Jukun & Tiv traditional attires, and urgent alterations.",
-        hourlyRate: 2500,
-        minTaskRate: 4000,
-        location: "Bantaje Quarters / Off-Campus",
-        phone: "0814 223 9981",
-        whatsapp: "2348142239981",
-        verified: true,
-        rating: 4.8,
-        reviewsCount: 41,
-        completedJobs: 52,
-        availability: "Flexible Daily (2pm - 8pm)",
-        skills: ["Ankara Styling", "Convocation Gowns", "Bridal Makeup", "Gele Tying"],
-        portfolioSummary: "Styled over 45 graduating students during the last FUW convocation ceremony with 100% on-time delivery.",
-        avatarColor: "from-amber-500 to-orange-600"
-      },
-      {
-        id: "seed-student-3",
-        fullName: "Ibrahim Musa Kefas",
-        matricNo: "FUW/20/EEE/0031",
-        department: "Electrical/Electronics Engineering",
-        faculty: "Faculty of Engineering",
-        level: "500 Level",
-        category: "artisans",
-        skillTitle: "Solar Inverter Setup, Domestic Wiring & Phone Repair",
-        bio: "Reliable solar mini-grid installer for student lodges and Wukari homes. I also fix charging ports, screens, and domestic electrical faults safely and affordably.",
-        hourlyRate: 3000,
-        minTaskRate: 3000,
-        location: "Hospital Area / General Hospital Rd",
-        phone: "0706 112 3344",
-        whatsapp: "2347061123344",
-        verified: true,
-        rating: 5.0,
-        reviewsCount: 19,
-        completedJobs: 26,
-        availability: "Weekdays after 4pm & Saturdays",
-        skills: ["Solar Panel Setup", "Inverter Maintenance", "House Wiring", "Smartphone Screens"],
-        portfolioSummary: "Installed 12V/24V solar backup systems in 15 student lodges across Bantaje and Hospital Area.",
-        avatarColor: "from-blue-600 to-indigo-700"
-      },
-      {
-        id: "seed-student-4",
-        fullName: "Blessing Nneka Okafor",
-        matricNo: "FUW/22/FST/0115",
-        department: "Food Science & Technology",
-        faculty: "Faculty of Agriculture & Life Sciences",
-        level: "300 Level",
-        category: "catering",
-        skillTitle: "Event Baker, Small Chops & Home Meal Prep",
-        bio: "Hygienic, delicious birthday cakes, meat pies, small chops platters, and bulk soups/stews for busy professionals and families in Wukari LGA.",
-        hourlyRate: 2000,
-        minTaskRate: 6000,
-        location: "Takum Junction & Environs",
-        phone: "0902 887 6543",
-        whatsapp: "2349028876543",
-        verified: true,
-        rating: 4.9,
-        reviewsCount: 35,
-        completedJobs: 48,
-        availability: "24hrs Notice Required",
-        skills: ["Birthday Cakes", "Small Chops", "Bachelor Soup Bowls", "Event Catering"],
-        portfolioSummary: "Official pastry vendor for 10+ departmental dinners and staff birthday celebrations in Wukari.",
-        avatarColor: "from-rose-500 to-pink-600"
-      },
-      {
-        id: "seed-student-5",
-        fullName: "Caleb Agbu Wunuji",
-        matricNo: "FUW/21/MTH/0054",
-        department: "Mathematics & Statistics",
-        faculty: "Faculty of Pure & Applied Sciences",
-        level: "400 Level",
-        category: "academic",
-        skillTitle: "WAEC/JAMB/JUPEB Tutor & Final Year Statistical Analyst",
-        bio: "Patient and result-driven home tutor for secondary school students in Wukari preparing for WAEC, NECO, and JAMB. Also proficient in SPSS, R, and Excel analysis.",
-        hourlyRate: 2000,
-        minTaskRate: 15000,
-        location: "Puje Ward & New Market Area",
-        phone: "0816 554 3210",
-        whatsapp: "2348165543210",
-        verified: true,
-        rating: 4.9,
-        reviewsCount: 22,
-        completedJobs: 29,
-        availability: "4pm - 7pm Weekdays, Full Weekends",
-        skills: ["Further Mathematics", "Physics & Chemistry", "JAMB Prep", "SPSS & Excel"],
-        portfolioSummary: "Tutored 14 Wukari secondary school students who scored 260+ in UTME.",
-        avatarColor: "from-purple-600 to-violet-700"
-      },
-      {
-        id: "seed-student-6",
-        fullName: "Zainab Danladi Bello",
-        matricNo: "FUW/23/MCB/0201",
-        department: "Microbiology",
-        faculty: "Faculty of Pure & Applied Sciences",
-        level: "200 Level",
-        category: "media",
-        skillTitle: "Brand Graphic Designer, Flyer Creator & Event Photographer",
-        bio: "Helping Wukari businesses stand out with eye-catching church/mosque flyers, business banners, logos, and crisp portrait/event photography.",
-        hourlyRate: 2500,
-        minTaskRate: 3500,
-        location: "Avyi Quarters",
-        phone: "0809 334 5566",
-        whatsapp: "2348093345566",
-        verified: true,
-        rating: 4.7,
-        reviewsCount: 16,
-        completedJobs: 21,
-        availability: "Daily (Remote & On-site)",
-        skills: ["CorelDRAW & Photoshop", "Portrait Photography", "Social Media Flyers", "Video Reels"],
-        portfolioSummary: "Designed branding packages for 18 new student and local businesses across Wukari town.",
-        avatarColor: "from-cyan-600 to-sky-700"
-      }
-    ];
-
-    const INITIAL_GIGS = [
-      {
-        id: "seed-gig-1",
-        title: "Home Lesson Teacher Needed for SS2 Student (Maths & Physics)",
-        clientName: "Mr. & Mrs. Ishaku",
-        clientType: "Wukari Resident (GRA)",
-        category: "academic",
-        location: "GRA Wukari",
-        budget: 25000,
-        budgetType: "Monthly (3 days/week)",
-        urgency: "High - Starts Monday",
-        description: "We need a smart, disciplined 300L or 400L Science/Engineering student from FUW to teach our son Mathematics and Physics three times a week (4:30pm - 6:00pm) at our residence in GRA Wukari.",
-        postedAt: "2 hours ago",
-        status: "Open",
-        applicantsCount: 3,
-        clientPhone: "0803 111 2233"
-      },
-      {
-        id: "seed-gig-2",
-        title: "Design & Print-Ready Banner for New POS & Mini-Mart",
-        clientName: "Alhaji Suleiman Enterprise",
-        clientType: "Local Business Owner",
-        category: "media",
-        location: "Takum Junction & Environs",
-        budget: 6000,
-        budgetType: "Fixed Price",
-        urgency: "Urgent (Within 24 Hours)",
-        description: "Looking for a skilled student graphic designer to create a bold outdoor banner design and two sticker designs for our new shop at Takum Junction.",
-        postedAt: "5 hours ago",
-        status: "Open",
-        applicantsCount: 5,
-        clientPhone: "0802 444 5566"
-      },
-      {
-        id: "seed-gig-3",
-        title: "Solar Charge Controller Troubleshooting & Battery Check",
-        clientName: "Dr. E. O. Nwankwo",
-        clientType: "FUW Senior Lecturer",
-        category: "artisans",
-        location: "Hospital Area / General Hospital Rd",
-        budget: 7500,
-        budgetType: "Fixed Inspection & Fix",
-        urgency: "Medium - This Weekend",
-        description: "My 1.5kVA solar inverter system stopped charging from the panels yesterday. Need an experienced Engineering/Physics student with a multimeter to diagnose and reconnect the controller.",
-        postedAt: "1 day ago",
-        status: "Open",
-        applicantsCount: 2,
-        clientPhone: "0813 777 8899"
-      },
-      {
-        id: "seed-gig-4",
-        title: "100 Packs of Small Chops for Departmental Colloquium",
-        clientName: "SUG Academic Committee",
-        clientType: "Campus Organization",
-        category: "catering",
-        location: "FUW Main Campus (Katsina-Ala Rd)",
-        budget: 120000,
-        budgetType: "Fixed Contract",
-        urgency: "Scheduled - Next Thursday",
-        description: "Seeking a reliable student caterer with verifiable hygiene standards to supply 100 well-packaged plates of small chops (samosa, spring roll, puff-puff, peppe-gizzard) by 10:00 AM prompt.",
-        postedAt: "1 day ago",
-        status: "Open",
-        applicantsCount: 7,
-        clientPhone: "0901 222 3344"
-      }
-    ];
-
-    // ==========================================
-    // 2. APPLICATION STATE
-    // ==========================================
-    const state = {
-      user: null,
-      activeTab: 'explore',
-      students: [...INITIAL_STUDENTS],
-      gigs: [...INITIAL_GIGS],
-      bookings: [],
-      searchQuery: '',
-      selectedCategory: 'all',
-      selectedLocation: 'All Wukari Locations',
-      verifiedOnly: false,
-      sortBy: 'rating',
-      bookingModalStudent: null,
-      applyingGig: null,
-      toastTimeout: null
-    };
-
-    // ==========================================
-    // 3. FIREBASE SETUP & REAL-TIME LISTENERS
-    // ==========================================
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'fuw-skilled-link-app';
-    let db = null;
-    let auth = null;
-
-    async function initFirebase() {
-      try {
-        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-          const firebaseConfig = JSON.parse(__firebase_config);
-          if (Object.keys(firebaseConfig).length > 0) {
-            const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-              await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-              await signInAnonymously(auth);
-            }
-
-            onAuthStateChanged(auth, (user) => {
-              state.user = user;
-              if (user && db) {
-                setupRealtimeCollections();
-              }
-            });
-          }
-        }
-      } catch (err) {
-        console.error("Firebase initialization fallback to in-memory mode:", err);
-      }
-    }
-
-    function setupRealtimeCollections() {
-      if (!state.user || !db) return;
-
-      const statusBadge = document.getElementById('cloud-status-badge');
-      if (statusBadge) statusBadge.textContent = 'Live Sync Active';
-
-      // 1. Students Collection
-      const studentsRef = collection(db, 'artifacts', appId, 'public', 'data', 'students');
-      onSnapshot(
-        studentsRef,
-        (snapshot) => {
-          const fetched = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-          if (fetched.length === 0) {
-            INITIAL_STUDENTS.forEach(async (st) => {
-              try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', st.id), st);
-              } catch (e) {}
-            });
-          } else {
-            state.students = fetched;
-            renderStudents();
-            updateCounters();
-          }
-        },
-        (err) => console.error("Students listener error:", err)
-      );
-
-      // 2. Gigs Collection
-      const gigsRef = collection(db, 'artifacts', appId, 'public', 'data', 'gigs');
-      onSnapshot(
-        gigsRef,
-        (snapshot) => {
-          const fetched = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-          if (fetched.length === 0) {
-            INITIAL_GIGS.forEach(async (gg) => {
-              try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'gigs', gg.id), gg);
-              } catch (e) {}
-            });
-          } else {
-            state.gigs = fetched;
-            renderGigs();
-            updateCounters();
-          }
-        },
-        (err) => console.error("Gigs listener error:", err)
-      );
-
-      // 3. Bookings Collection
-      const bookingsRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
-      onSnapshot(
-        bookingsRef,
-        (snapshot) => {
-          state.bookings = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-          renderBookings();
-          updateCounters();
-        },
-        (err) => console.error("Bookings listener error:", err)
-      );
-    }
-
-    // ==========================================
-    // 4. FORMATTING & UTILITY HELPERS
-    // ==========================================
-    function escapeHtml(str) {
-      if (str === null || str === undefined) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    function getInitials(name) {
-      if (!name) return 'FU';
-      return name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-    }
-
-    function formatNaira(amount) {
-      const num = Number(amount) || 0;
-      return `₦${num.toLocaleString('en-NG')}`;
-    }
-
-    function refreshIcons() {
-      if (window.lucide) {
-        window.lucide.createIcons();
-      }
-    }
-
-    function showToast(title, message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const titleEl = document.getElementById('toast-title');
-      const msgEl = document.getElementById('toast-message');
-      const iconBox = document.getElementById('toast-icon-box');
-
-      titleEl.textContent = title;
-      msgEl.textContent = message;
-
-      if (type === 'error') {
-        iconBox.className = 'p-2 rounded-xl bg-red-500/20 text-red-400 shrink-0';
-        iconBox.innerHTML = '<i data-lucide="alert-circle" class="w-5 h-5"></i>';
-      } else {
-        iconBox.className = 'p-2 rounded-xl bg-emerald-500/20 text-emerald-400 shrink-0';
-        iconBox.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5"></i>';
-      }
-
-      container.classList.remove('hidden');
-      refreshIcons();
-
-      if (state.toastTimeout) clearTimeout(state.toastTimeout);
-      state.toastTimeout = setTimeout(() => {
-        container.classList.add('hidden');
-      }, 4500);
-    }
-
-    // ==========================================
-    // 5. DOM RENDER FUNCTIONS
-    // ==========================================
-    function populateSelectDropdowns() {
-      // Hero Location Select
-      const locSelect = document.getElementById('location-select');
-      locSelect.innerHTML = WUKARI_LOCATIONS.map(
-        (loc) => `<option value="${escapeHtml(loc)}">${escapeHtml(loc)}</option>`
-      ).join('');
-
-      // Sub-locations without "All Wukari Locations"
-      const specificLocationsHtml = WUKARI_LOCATIONS.filter((l) => l !== 'All Wukari Locations')
-        .map((loc) => `<option value="${escapeHtml(loc)}">${escapeHtml(loc)}</option>`)
-        .join('');
-
-      document.getElementById('reg-location').innerHTML = specificLocationsHtml;
-      document.getElementById('book-client-location').innerHTML = specificLocationsHtml;
-      document.getElementById('gig-location').innerHTML = specificLocationsHtml;
-
-      // Categories without "all"
-      const specificCategoriesHtml = SKILL_CATEGORIES.filter((c) => c.id !== 'all')
-        .map((cat) => `<option value="${escapeHtml(cat.id)}">${escapeHtml(cat.name)}</option>`)
-        .join('');
-
-      document.getElementById('reg-category').innerHTML = specificCategoriesHtml;
-      document.getElementById('gig-category').innerHTML = specificCategoriesHtml;
-
-      // FUW Faculties
-      document.getElementById('reg-faculty').innerHTML = FUW_FACULTIES.map(
-        (fac) => `<option value="${escapeHtml(fac)}">${escapeHtml(fac)}</option>`
-      ).join('');
-    }
-
-    function renderCategoryPills() {
-      const container = document.getElementById('category-pills-container');
-      container.innerHTML = SKILL_CATEGORIES.map((cat) => {
-        const isActive = state.selectedCategory === cat.id;
-        return `
-          <button
-            onclick="window.appActions.selectCategory('${cat.id}')"
-            class="px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-              isActive
-                ? 'bg-emerald-700 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }"
-          >
-            ${escapeHtml(cat.name)}
-          </button>
-        `;
-      }).join('');
-    }
-
-    function getFilteredStudents() {
-      return state.students
-        .filter((st) => {
-          const matchesCategory = state.selectedCategory === 'all' || st.category === state.selectedCategory;
-          const matchesLocation =
-            state.selectedLocation === 'All Wukari Locations' || st.location === state.selectedLocation;
-          const matchesVerified = !state.verifiedOnly || st.verified;
-          const q = state.searchQuery.toLowerCase().trim();
-          const matchesQuery =
-            !q ||
-            st.fullName?.toLowerCase().includes(q) ||
-            st.skillTitle?.toLowerCase().includes(q) ||
-            st.department?.toLowerCase().includes(q) ||
-            st.bio?.toLowerCase().includes(q) ||
-            (st.skills && st.skills.some((s) => s.toLowerCase().includes(q)));
-
-          return matchesCategory && matchesLocation && matchesVerified && matchesQuery;
-        })
-        .sort((a, b) => {
-          if (state.sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
-          if (state.sortBy === 'price-low') return (a.minTaskRate || 0) - (b.minTaskRate || 0);
-          if (state.sortBy === 'jobs') return (b.completedJobs || 0) - (a.completedJobs || 0);
-          return 0;
-        });
-    }
-
-    function renderStudents() {
-      const filtered = getFilteredStudents();
-      const grid = document.getElementById('students-grid');
-      document.getElementById('filtered-count').textContent = filtered.length;
-      document.getElementById('active-location-label').textContent = state.selectedLocation;
-
-      const resetBtn = document.getElementById('reset-filters-btn');
-      if (
-        state.selectedCategory !== 'all' ||
-        state.selectedLocation !== 'All Wukari Locations' ||
-        state.searchQuery.trim() !== ''
-      ) {
-        resetBtn.classList.remove('hidden');
-      } else {
-        resetBtn.classList.add('hidden');
-      }
-
-      if (filtered.length === 0) {
-        grid.className = 'block';
-        grid.innerHTML = `
-          <div class="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-lg mx-auto my-8">
-            <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto mb-4">
-              <i data-lucide="search" class="w-8 h-8"></i>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900">No Matching Student Found</h3>
-            <p class="text-xs text-slate-500 mt-2 leading-relaxed">
-              We couldn't find a student matching your current filter in ${escapeHtml(state.selectedLocation)}. Try clearing filters or post a custom job on the Wukari Job Board.
-            </p>
-            <div class="mt-6 flex justify-center gap-3">
-              <button onclick="window.appActions.resetFilters()" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">
-                Show All Students
-              </button>
-              <button onclick="window.appActions.openPostGigModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800">
-                Post Custom Request
-              </button>
-            </div>
-          </div>
-        `;
-        refreshIcons();
-        return;
-      }
-
-      grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
-      grid.innerHTML = filtered
-        .map((student) => {
-          const skillsBadges = (student.skills || [])
-            .slice(0, 4)
-            .map(
-              (sk) =>
-                `<span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 font-semibold text-[11px]">${escapeHtml(
-                  sk
-                )}</span>`
-            )
-            .join('');
-
-          return `
-            <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all flex flex-col justify-between overflow-hidden group">
-              <div>
-                <div class="p-6 pb-4">
-                  <div class="flex items-start justify-between gap-3">
-                    <div class="flex items-center gap-3.5">
-                      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${
-                        student.avatarColor || 'from-emerald-600 to-teal-700'
-                      } text-white font-extrabold text-lg flex items-center justify-center shadow-md shrink-0">
-                        ${escapeHtml(getInitials(student.fullName))}
-                      </div>
-                      <div>
-                        <div class="flex items-center gap-1.5">
-                          <h3 class="font-bold text-base text-slate-900 group-hover:text-emerald-700 transition-colors">
-                            ${escapeHtml(student.fullName)}
-                          </h3>
-                          ${
-                            student.verified
-                              ? `<span title="Verified FUW Matric Number" class="inline-flex items-center text-emerald-600">
-                                   <i data-lucide="check-circle" class="w-4 h-4"></i>
-                                 </span>`
-                              : ''
-                          }
-                        </div>
-                        <p class="text-xs font-semibold text-slate-500">
-                          ${escapeHtml(student.department)} • <span class="text-emerald-700">${escapeHtml(student.level)}</span>
-                        </p>
-                        <span class="inline-block mt-1 text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
-                          ID: ${escapeHtml(student.matricNo)}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div class="flex flex-col items-end">
-                      <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
-                        <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400 text-amber-500"></i>
-                        <span>${escapeHtml(student.rating)}</span>
-                      </div>
-                      <span class="text-[11px] text-slate-400 mt-1">
-                        ${escapeHtml(student.completedJobs)} jobs done
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="mt-4">
-                    <h4 class="font-extrabold text-sm text-slate-900 leading-snug">
-                      ${escapeHtml(student.skillTitle)}
-                    </h4>
-                    <p class="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
-                      ${escapeHtml(student.bio)}
-                    </p>
-                  </div>
-
-                  <div class="flex flex-wrap gap-1.5 mt-3.5">
-                    ${skillsBadges}
-                  </div>
-                </div>
-
-                <div class="px-6 py-3 bg-slate-50/80 border-y border-slate-100 space-y-1.5 text-xs">
-                  <div class="flex items-center gap-2 text-slate-600">
-                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-600 shrink-0"></i>
-                    <span class="truncate font-medium">${escapeHtml(student.location)}</span>
-                  </div>
-                  <div class="flex items-center gap-2 text-slate-600">
-                    <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
-                    <span class="truncate">Available: ${escapeHtml(student.availability)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="p-5 flex items-center justify-between gap-3 bg-white">
-                <div>
-                  <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400 block">
-                    Starting Task Rate
-                  </span>
-                  <span class="text-base font-extrabold text-slate-900">
-                    ${formatNaira(student.minTaskRate)}
-                  </span>
-                </div>
-
-                <div class="flex items-center gap-2">
-                  <button
-                    onclick="window.appActions.openProfileModal('${student.id}')"
-                    class="px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
-                  >
-                    Profile
-                  </button>
-                  <button
-                    onclick="window.appActions.openBookingModal('${student.id}')"
-                    class="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-sm transition-all flex items-center gap-1.5"
-                  >
-                    <span>Hire Now</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-
-      refreshIcons();
-    }
-
-    function renderGigs() {
-      const grid = document.getElementById('gigs-grid');
-      grid.innerHTML = state.gigs
-        .map((gig) => {
-          const catName =
-            SKILL_CATEGORIES.find((c) => c.id === gig.category)?.name || gig.category;
-          return `
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between gap-2 mb-3">
-                  <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    ${escapeHtml(catName)}
-                  </span>
-                  <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
-                    ${escapeHtml(gig.urgency)}
-                  </span>
-                </div>
-
-                <h3 class="text-lg font-extrabold text-slate-900 leading-snug">
-                  ${escapeHtml(gig.title)}
-                </h3>
-                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
-                  ${escapeHtml(gig.description)}
-                </p>
-
-                <div class="grid grid-cols-2 gap-3 mt-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
-                  <div>
-                    <span class="text-slate-400 block text-[11px]">Posted By Client</span>
-                    <span class="font-bold text-slate-800">${escapeHtml(gig.clientName)}</span>
-                    <span class="block text-[11px] text-slate-500">${escapeHtml(gig.clientType)}</span>
-                  </div>
-                  <div>
-                    <span class="text-slate-400 block text-[11px]">Wukari Location</span>
-                    <span class="font-bold text-emerald-700 flex items-center gap-1 mt-0.5">
-                      <i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0"></i>
-                      <span class="truncate">${escapeHtml(gig.location)}</span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <span class="text-[11px] text-slate-400 block">${escapeHtml(gig.budgetType)}</span>
-                  <span class="text-lg font-extrabold text-slate-900">
-                    ${formatNaira(gig.budget)}
-                  </span>
-                  <span class="text-xs text-slate-400 ml-2">
-                    • ${gig.applicantsCount || 0} student applicants
-                  </span>
-                </div>
-
-                <button
-                  onclick="window.appActions.openApplyGigModal('${gig.id}')"
-                  class="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-sm transition-all"
-                >
-                  Apply as FUW Student
-                </button>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-
-      refreshIcons();
-    }
-
-    function renderBookings() {
-      const container = document.getElementById('bookings-list-container');
-      document.getElementById('bookings-header-count').textContent = state.bookings.length;
-
-      if (state.bookings.length === 0) {
-        container.innerHTML = `
-          <div class="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-lg mx-auto">
-            <i data-lucide="calendar" class="w-12 h-12 text-emerald-700 mx-auto mb-3"></i>
-            <h3 class="text-lg font-bold text-slate-900">No Active Contracts Yet</h3>
-            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-              When you hire an FUW student or apply for a client job on the Wukari board, your contract details and status updates will appear here.
-            </p>
-            <button
-              onclick="window.appActions.switchTab('explore')"
-              class="mt-5 px-5 py-2.5 rounded-xl bg-emerald-700 text-white text-xs font-bold"
-            >
-              Explore Skilled Students
-            </button>
-          </div>
-        `;
-        refreshIcons();
-        return;
-      }
-
-      container.innerHTML = state.bookings
-        .map((bk) => {
-          const isCompleted = bk.status?.includes('Completed');
-          const isProgress = bk.status?.includes('Progress');
-          const badgeClass = isCompleted
-            ? 'bg-emerald-100 text-emerald-800'
-            : isProgress
-            ? 'bg-blue-100 text-blue-800'
-            : 'bg-amber-100 text-amber-800';
-
-          return `
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-              <div class="space-y-2 max-w-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="px-3 py-1 rounded-full text-xs font-bold ${badgeClass}">
-                    ${escapeHtml(bk.status)}
-                  </span>
-                  <span class="text-xs text-slate-400">• Booked on ${escapeHtml(bk.createdAt)}</span>
-                </div>
-
-                <h3 class="text-lg font-extrabold text-slate-900">${escapeHtml(bk.taskTitle)}</h3>
-                <p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(bk.taskDetails)}</p>
-
-                <div class="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-600">
-                  <div>
-                    <span class="text-slate-400">Student Pro: </span>
-                    <span class="font-bold text-slate-900">${escapeHtml(bk.studentName)}</span> (${escapeHtml(bk.studentMatric)})
-                  </div>
-                  <div>
-                    <span class="text-slate-400">Client: </span>
-                    <span class="font-bold text-slate-900">${escapeHtml(bk.clientName)}</span>
-                  </div>
-                  <div class="flex items-center gap-1 text-emerald-700 font-semibold">
-                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                    <span>${escapeHtml(bk.clientLocation)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-3 border-t lg:border-t-0 pt-4 lg:pt-0 border-slate-100 shrink-0">
-                <div class="text-left lg:text-right">
-                  <span class="text-[11px] text-slate-400 block">Agreed / Proposed Rate</span>
-                  <span class="text-xl font-extrabold text-emerald-700">
-                    ${formatNaira(bk.proposedBudget)}
-                  </span>
-                </div>
-
-                <div class="flex flex-wrap items-center gap-2">
-                  ${
-                    bk.status !== 'In Progress' && bk.status !== 'Completed & Verified'
-                      ? `<button
-                           onclick="window.appActions.updateBookingStatus('${bk.id}', 'In Progress')"
-                           class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold"
-                         >
-                           Accept & Start Job
-                         </button>`
-                      : ''
-                  }
-                  ${
-                    bk.status !== 'Completed & Verified'
-                      ? `<button
-                           onclick="window.appActions.updateBookingStatus('${bk.id}', 'Completed & Verified')"
-                           class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center gap-1"
-                         >
-                           <i data-lucide="check" class="w-3.5 h-3.5"></i>
-                           <span>Mark Completed</span>
-                         </button>`
-                      : ''
-                  }
-                </div>
-              </div>
-            </div>
-          `;
-        })
-        .join('');
-
-      refreshIcons();
-    }
-
-    function updateCounters() {
-      document.getElementById('stat-students-count').textContent = `${state.students.length}+`;
-      document.getElementById('stat-gigs-count').textContent = state.gigs.length;
-      document.getElementById('badge-gigs-desktop').textContent = state.gigs.length;
-      document.getElementById('badge-gigs-mobile').textContent = state.gigs.length;
-
-      const bkDesktop = document.getElementById('badge-bookings-desktop');
-      const bkMobile = document.getElementById('badge-bookings-mobile');
-      bkMobile.textContent = state.bookings.length;
-      if (state.bookings.length > 0) {
-        bkDesktop.textContent = state.bookings.length;
-        bkDesktop.classList.remove('hidden');
-      } else {
-        bkDesktop.classList.add('hidden');
-      }
-    }
-
-    // ==========================================
-    // 6. INTERACTIVE ACTIONS & MODAL HANDLERS
-    // ==========================================
-    window.appActions = {
-      hideToast() {
-        document.getElementById('toast-container').classList.add('hidden');
-      },
-
-      switchTab(tabId) {
-        state.activeTab = tabId;
-        const tabs = ['explore', 'gigs', 'ai-match', 'bookings', 'register'];
-
-        tabs.forEach((t) => {
-          const sec = document.getElementById(`tab-${t}`);
-          if (sec) {
-            if (t === tabId) sec.classList.remove('hidden');
-            else sec.classList.add('hidden');
-          }
-
-          // Desktop Nav Highlight
-          const dBtn = document.getElementById(`nav-${t}`);
-          if (dBtn) {
-            if (t === tabId) {
-              dBtn.className =
-                'px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 bg-white text-emerald-700 shadow-sm';
-            } else {
-              dBtn.className =
-                'px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900';
-            }
-          }
-
-          // Mobile Nav Highlight
-          const mBtn = document.getElementById(`mob-nav-${t}`);
-          if (mBtn) {
-            if (t === tabId) {
-              mBtn.className =
-                'flex-1 py-2 px-3 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1.5 bg-emerald-700 text-white';
-            } else {
-              mBtn.className =
-                'flex-1 py-2 px-3 rounded-xl text-xs font-bold whitespace-nowrap flex items-center justify-center gap-1.5 bg-slate-100 text-slate-600';
-            }
-          }
-        });
-
-        const hero = document.getElementById('hero-section');
-        if (tabId === 'explore') hero.classList.remove('hidden');
-        else hero.classList.add('hidden');
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      },
-
-      selectCategory(catId) {
-        state.selectedCategory = catId;
-        renderCategoryPills();
-        renderStudents();
-      },
-
-      clearSearch() {
-        state.searchQuery = '';
-        document.getElementById('search-input').value = '';
-        document.getElementById('clear-search-btn').classList.add('hidden');
-        renderStudents();
-      },
-
-      resetFilters() {
-        state.selectedCategory = 'all';
-        state.selectedLocation = 'All Wukari Locations';
-        state.searchQuery = '';
-        state.verifiedOnly = false;
-        document.getElementById('search-input').value = '';
-        document.getElementById('location-select').value = 'All Wukari Locations';
-        document.getElementById('verified-only-checkbox').checked = false;
-        document.getElementById('clear-search-btn').classList.add('hidden');
-        renderCategoryPills();
-        renderStudents();
-      },
-
-      openProfileModal(studentId) {
-        const st = state.students.find((s) => s.id === studentId);
-        if (!st) return;
-
-        const modal = document.getElementById('profile-modal');
-        const content = document.getElementById('profile-modal-content');
-
-        const skillsHtml = (st.skills || [])
-          .map(
-            (sk) =>
-              `<span class="px-3 py-1 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs">${escapeHtml(
-                sk
-              )}</span>`
-          )
-          .join('');
-
-        content.innerHTML = `
-          <div class="bg-gradient-to-r from-emerald-90
+  <!-- Main Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>

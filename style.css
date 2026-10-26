@@ -1,0 +1,49 @@
+/* Custom Styles for FUW Student Skilled Link */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.hero-gradient {
+  background: radial-gradient(circle at top right, #065f46 0%, #022c22 55%, #0f172a 100%);
+}
+
+/* Active navigation button styling */
+.active-nav {
+  background-color: #047857 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+}
+
+/* Hide scrollbars on horizontal pill bars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Smooth modal entry animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Card hover lift */
+.student-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.student-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.12);
+}
